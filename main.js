@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -7,6 +7,7 @@ function createWindow() {
     height: 800,
     fullscreen: false,
     backgroundColor: '#0a0a0a',
+    icon: path.join(__dirname, 'assets/icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -21,6 +22,12 @@ function createWindow() {
 // This method will be called when Electron has finished initialization
 app.whenReady().then(() => {
   createWindow();
+
+  // Set the dock icon specifically for macOS
+  if (process.platform === 'darwin') {
+    const icon = nativeImage.createFromPath(path.join(__dirname, 'assets/icon.png'));
+    app.dock.setIcon(icon);
+  }
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

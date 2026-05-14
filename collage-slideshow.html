@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Collage Slideshow</title>
+<link rel="icon" href="assets/icon.png" type="image/png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -223,6 +224,7 @@
 <body>
 
 <div id="landing">
+  <img src="assets/icon.png" alt="App Logo" style="width: 80px; height: 80px;">
   <h1>Collage Slideshow</h1>
   <p>Add one or more folders of images, then start the slideshow.</p>
   <button id="pickBtn">+ Add Folder</button>
@@ -248,14 +250,7 @@
   const SPEEDS = [2000, 4000, 6000, 10000];
   const SPEED_LABELS = ['2s','4s','6s','10s'];
 
-  let allFiles = [];
-  let groups = [];
-  let current = 0;
-  let playing = true;
-  let speedIdx = 1;
-  let timer = null;
-  let progressTimer = null;
-  let progressStart = null;
+  const PRELOAD_AHEAD_COUNT = 3; // How many frames to preload ahead
 
   const pickBtn = document.getElementById('pickBtn');
   const startBtn = document.getElementById('startBtn');
@@ -272,7 +267,20 @@
   const chapterLabel = document.getElementById('chapterLabel');
   const exitBtn = document.getElementById('exitBtn');
 
+  let current = 0;
+  let playing = true;
+  let speedIdx = 1;
+  let timer = null; // For scheduling next slide
+  let progressTimer = null;
+  let progressStart = null;
+
   let folders = []; // [{ name, files[] }]
+  let groups = []; 
+  let frameEls = []; // Array to store built frame DOM elements
+  let blobUrls = []; // Array to store blob URLs for each frame (for revocation)
+  let allChapters = [];
+  let activeFrameEl = null; // Reference to the currently active frame DOM element
+  let preloadingPromises = new Map(); // Map to track ongoing preload promises by index
 
   function renderFolderList() {
     folderList.innerHTML = '';
@@ -352,8 +360,6 @@
     await buildGroups();
     startSlideshow();
   });
-
-  let allChapters = []; // [{ name, files[] }]
 
   async function buildGroups() {
     groups = [];
@@ -463,9 +469,6 @@
     return frame;
   }
 
-  let frameEls = [];
-  let blobUrls = [];
-
   async function startSlideshow() {
     document.getElementById('landing').style.display = 'none';
     slideshow.style.display = 'block';
@@ -534,6 +537,7 @@
 
   function startProgress() {
     clearInterval(progressTimer);
+    if (progressTimer) clearInterval(progressTimer);
     progressStart = Date.now();
     const duration = SPEEDS[speedIdx];
     progressBar.style.transition = 'none';
