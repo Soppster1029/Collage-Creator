@@ -224,7 +224,7 @@
 
 <div id="landing">
   <h1>Collage Slideshow</h1>
-  <p>Add one or more folders of images, then start the slideshow. Works best in Chrome or Edge on macOS.</p>
+  <p>Add one or more folders of images, then start the slideshow.</p>
   <button id="pickBtn">+ Add Folder</button>
   <div id="folderList"></div>
   <button id="startBtn" style="display:none">Start Slideshow &#9654;</button>
@@ -321,7 +321,7 @@
 
   pickBtn.addEventListener('click', async () => {
     if (!('showDirectoryPicker' in window)) {
-      status.textContent = 'Sorry — use Chrome or Edge on macOS for this feature.';
+      status.textContent = 'File System Access API not supported.';
       return;
     }
     try {
