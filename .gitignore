@@ -1,0 +1,32 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build output (electron-builder defaults)
+dist/
+out/
+release/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and editors
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
