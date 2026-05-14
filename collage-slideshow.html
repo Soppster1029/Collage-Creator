@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collage Slideshow</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0a;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #landing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  #landing h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: #fff;
+  }
+
+  #landing p {
+    color: #888;
+    font-size: 0.95rem;
+    max-width: 360px;
+    line-height: 1.6;
+  }
+
+  #pickBtn {
+    background: #fff;
+    color: #0a0a0a;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+  #pickBtn:hover { opacity: 0.85; }
+
+  #folderList {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .folder-tag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+  .folder-tag span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .folder-tag .fcount { color: #888; font-size: 0.8rem; white-space: nowrap; }
+  .folder-tag .fremove {
+    background: none; border: none; color: #666; font-size: 1rem;
+    cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s;
+  }
+  .folder-tag .fremove:hover { color: #fff; }
+
+  #startBtn {
+    background: #fff;
+    color: #0a0a0a;
+    border: none;
+    padding: 13px 32px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  #startBtn:hover { opacity: 0.85; }
+
+  #status {
+    color: #666;
+    font-size: 0.85rem;
+    min-height: 20px;
+  }
+
+  #slideshow {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .collage-frame {
+    position: absolute;
+    inset: 0;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+    background: #111;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .collage-frame.active { opacity: 1; }
+
+  .photo-card {
+    position: absolute;
+    background: #fff;
+    padding: 6px;
+    padding-bottom: 22px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.7);
+    transform-origin: center center;
+  }
+
+  .photo-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #controls {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    gap: 12px;
+    align-items: center;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(12px);
+    padding: 10px 20px;
+    border-radius: 40px;
+    border: 1px solid rgba(255,255,255,0.1);
+    z-index: 100;
+  }
+
+  #controls button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+  #controls button:hover { background: rgba(255,255,255,0.15); }
+
+  #counter {
+    font-size: 0.8rem;
+    color: #aaa;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  #progressBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.5);
+    transition: width 0.1s linear;
+    z-index: 100;
+  }
+
+  #exitBtn {
+    position: fixed;
+    top: 18px;
+    right: 20px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: none;
+    z-index: 100;
+  }
+  #exitBtn:hover { background: rgba(255,255,255,0.1); }
+
+  #chapterLabel {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 0.82rem;
+    padding: 5px 16px;
+    border-radius: 20px;
+    display: none;
+    z-index: 100;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+</style>
+</head>
+<body>
+
+<div id="landing">
+  <h1>Collage Slideshow</h1>
+  <p>Add one or more folders of images, then start the slideshow. Works best in Chrome or Edge on macOS.</p>
+  <button id="pickBtn">+ Add Folder</button>
+  <div id="folderList"></div>
+  <button id="startBtn" style="display:none">Start Slideshow &#9654;</button>
+  <div id="status"></div>
+</div>
+
+<div id="slideshow"></div>
+<div id="controls">
+  <button id="prevBtn" title="Previous">&#8592;</button>
+  <button id="playBtn" title="Pause">&#9646;&#9646;</button>
+  <span id="counter"></span>
+  <button id="nextBtn" title="Next">&#8594;</button>
+  <button id="speedBtn" title="Speed">4s</button>
+</div>
+<div id="progressBar"></div>
+<div id="chapterLabel"></div>
+<button id="exitBtn">&#x2715; Exit</button>
+
+<script>
+  const IMAGES_PER_GROUP = 6;
+  const SPEEDS = [2000, 4000, 6000, 10000];
+  const SPEED_LABELS = ['2s','4s','6s','10s'];
+
+  let allFiles = [];
+  let groups = [];
+  let current = 0;
+  let playing = true;
+  let speedIdx = 1;
+  let timer = null;
+  let progressTimer = null;
+  let progressStart = null;
+
+  const pickBtn = document.getElementById('pickBtn');
+  const startBtn = document.getElementById('startBtn');
+  const status = document.getElementById('status');
+  const folderList = document.getElementById('folderList');
+  const slideshow = document.getElementById('slideshow');
+  const controls = document.getElementById('controls');
+  const prevBtn = document.getElementById('prevBtn');
+  const playBtn = document.getElementById('playBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const speedBtn = document.getElementById('speedBtn');
+  const counter = document.getElementById('counter');
+  const progressBar = document.getElementById('progressBar');
+  const chapterLabel = document.getElementById('chapterLabel');
+  const exitBtn = document.getElementById('exitBtn');
+
+  let folders = []; // [{ name, files[] }]
+
+  function renderFolderList() {
+    folderList.innerHTML = '';
+    folders.forEach((f, i) => {
+      const totalImgs = f.subfolders.reduce((s, sf) => s + sf.files.length, 0);
+      const tag = document.createElement('div');
+      tag.className = 'folder-tag';
+      tag.innerHTML = `<span>&#128193; ${f.name}</span><span class="fcount">${f.subfolders.length} subfolders · ${totalImgs} images</span><button class="fremove" title="Remove">&times;</button>`;
+      tag.querySelector('.fremove').addEventListener('click', () => {
+        folders.splice(i, 1);
+        renderFolderList();
+        updateStartBtn();
+      });
+      folderList.appendChild(tag);
+    });
+  }
+
+  function updateStartBtn() {
+    const total = folders.reduce((s, f) => s + f.subfolders.reduce((ss, sf) => ss + sf.files.length, 0), 0);
+    const chapters = folders.reduce((s, f) => s + f.subfolders.length, 0);
+    startBtn.style.display = folders.length > 0 ? 'block' : 'none';
+    startBtn.textContent = `Start Slideshow ▶  (${chapters} chapters · ${total} images)`;
+  }
+
+  async function scanDir(dirHandle, pathParts, chapters) {
+    const files = [];
+    const subdirs = [];
+    try {
+      for await (const entry of dirHandle.values()) {
+        if (entry.kind === 'file' && /\.(jpe?g|png|gif|webp|avif|bmp)$/i.test(entry.name)) {
+          files.push(await entry.getFile());
+        } else if (entry.kind === 'directory') {
+          subdirs.push(entry);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read', pathParts.join('/'), e);
+      return;
+    }
+    subdirs.sort((a, b) => a.name.localeCompare(b.name));
+    if (files.length > 0) chapters.push({ name: pathParts.join(' / '), files });
+    for (const sub of subdirs) {
+      await scanDir(sub, [...pathParts, sub.name], chapters);
+    }
+  }
+
+  pickBtn.addEventListener('click', async () => {
+    if (!('showDirectoryPicker' in window)) {
+      status.textContent = 'Sorry — use Chrome or Edge on macOS for this feature.';
+      return;
+    }
+    try {
+      const dir = await window.showDirectoryPicker({ mode: 'read' });
+      status.textContent = 'Scanning folders…';
+      const chapters = [];
+      await scanDir(dir, [dir.name], chapters);
+
+      if (chapters.length === 0) {
+        status.textContent = 'No images found in that folder.';
+        return;
+      }
+
+      folders.push({ name: dir.name, subfolders: chapters });
+      status.textContent = '';
+      renderFolderList();
+      updateStartBtn();
+    } catch (e) {
+      if (e.name !== 'AbortError') status.textContent = 'Error: ' + e.message;
+    }
+  });
+
+  startBtn.addEventListener('click', async () => {
+    // Build groups chapter-by-chapter (each subfolder = one chapter, shuffled within)
+    const chapters = folders.flatMap(f => f.subfolders);
+    allChapters = chapters;
+    status.textContent = `Building slideshow from ${chapters.length} chapters…`;
+    await buildGroups();
+    startSlideshow();
+  });
+
+  let allChapters = []; // [{ name, files[] }]
+
+  async function buildGroups() {
+    groups = [];
+    for (const chapter of allChapters) {
+      const files = [...chapter.files];
+      for (let i = files.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [files[i], files[j]] = [files[j], files[i]];
+      }
+      let idx = 0;
+      while (idx < files.length) {
+        const chunk = files.slice(idx, idx + IMAGES_PER_GROUP);
+        groups.push({ files: chunk, chapterName: chapter.name });
+        idx += IMAGES_PER_GROUP;
+      }
+    }
+  }
+
+  async function preloadGroup(group) {
+    return Promise.all(group.files.map(f => new Promise(res => {
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.onload = () => res({ url, w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => res({ url, w: 1, h: 1 });
+      img.src = url;
+    })));
+  }
+
+  function buildScatteredFrame(group, imgData) {
+    const frame = document.createElement('div');
+    frame.className = 'collage-frame';
+
+    const VW = window.innerWidth;
+    const VH = window.innerHeight;
+    const PAD = 6;
+    const BOTTOM_PAD = 22;
+    const MARGIN = 4;
+    const OVERLAP = 0.12;
+
+    const n = imgData.length;
+    // Pick grid that best fits the actual count
+    let cols, rows;
+    if (n <= 2) { cols = n; rows = 1; }
+    else if (n === 3) { cols = 3; rows = 1; }
+    else if (n === 4) { cols = 2; rows = 2; }
+    else if (n === 5) { cols = 3; rows = 2; }
+    else { cols = 3; rows = 2; }
+    const slotW = (VW - MARGIN * 2) / cols;
+    const slotH = (VH - MARGIN * 2) / rows;
+
+    const slots = [];
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        slots.push({ r, c });
+    for (let i = slots.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [slots[i], slots[j]] = [slots[j], slots[i]];
+    }
+
+    imgData.forEach(({ url, w, h }, i) => {
+      const slot = slots[i % slots.length];
+      const ar = w / h;
+      const isPortrait = ar < 0.95;
+
+      let maxImgW, maxImgH;
+      const availW = slotW * 0.99 - PAD * 2;
+      const availH = slotH * 0.99 - PAD - BOTTOM_PAD;
+
+      if (isPortrait) {
+        maxImgH = availH;
+        maxImgW = maxImgH * ar;
+        if (maxImgW > availW) { maxImgW = availW; maxImgH = maxImgW / ar; }
+      } else {
+        maxImgW = availW;
+        maxImgH = maxImgW / ar;
+        if (maxImgH > availH) { maxImgH = availH; maxImgW = maxImgH * ar; }
+      }
+
+      const cardW = maxImgW + PAD * 2;
+      const cardH = maxImgH + PAD + BOTTOM_PAD;
+
+      // Centre in slot with small random offset
+      const slotX = MARGIN + slot.c * slotW;
+      const slotY = MARGIN + slot.r * slotH;
+      const jitterX = (Math.random() - 0.5) * slotW * OVERLAP;
+      const jitterY = (Math.random() - 0.5) * slotH * OVERLAP;
+      const cx = slotX + slotW / 2 + jitterX;
+      const cy = slotY + slotH / 2 + jitterY;
+      const left = Math.max(MARGIN / 2, Math.min(VW - cardW - MARGIN / 2, cx - cardW / 2));
+      const top  = Math.max(MARGIN / 2, Math.min(VH - cardH - MARGIN / 2, cy - cardH / 2));
+
+      // Slight random rotation
+      const rot = (Math.random() - 0.5) * 6;
+
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${rot}deg);z-index:${i + 1};`;
+
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = '';
+      img.style.cssText = `width:${maxImgW}px;height:${maxImgH}px;`;
+      card.appendChild(img);
+      frame.appendChild(card);
+    });
+
+    return frame;
+  }
+
+  let frameEls = [];
+  let blobUrls = [];
+
+  async function startSlideshow() {
+    document.getElementById('landing').style.display = 'none';
+    slideshow.style.display = 'block';
+    controls.style.display = 'flex';
+    exitBtn.style.display = 'block';
+    chapterLabel.style.display = 'block';
+
+    // Pre-build all frames (lazy: build on demand to avoid memory issues)
+    current = 0;
+    frameEls = new Array(groups.length).fill(null);
+    blobUrls = new Array(groups.length).fill(null);
+
+    await showFrame(0);
+    if (groups.length > 1) await preloadAndBuildFrame(1);
+    scheduleNext();
+  }
+
+  async function preloadAndBuildFrame(idx) {
+    if (frameEls[idx]) return;
+    const group = groups[idx];
+    const imgData = await preloadGroup(group);
+    blobUrls[idx] = imgData.map(d => d.url);
+    const frame = buildScatteredFrame(group, imgData);
+    frame.style.display = 'none';
+    slideshow.appendChild(frame);
+    frameEls[idx] = frame;
+  }
+
+  function destroyAllFrames() {
+    // Remove every frame from DOM and revoke blob URLs
+    frameEls.forEach((f, i) => {
+      if (f) { f.remove(); frameEls[i] = null; }
+      if (blobUrls[i]) { blobUrls[i].forEach(u => URL.revokeObjectURL(u)); blobUrls[i] = null; }
+    });
+    // Also nuke any orphaned frames that snuck into the DOM
+    slideshow.querySelectorAll('.collage-frame').forEach(f => f.remove());
+  }
+
+  async function showFrame(idx) {
+    // Tear down everything except what we're about to show
+    destroyAllFrames();
+
+    await preloadAndBuildFrame(idx);
+    frameEls[idx].style.display = 'block';
+    frameEls[idx].offsetHeight;
+    frameEls[idx].classList.add('active');
+
+    updateCounter();
+    startProgress();
+
+    // Preload next in background after a short delay
+    const next = (idx + 1) % groups.length;
+    setTimeout(() => preloadAndBuildFrame(next), 400);
+  }
+
+  function scheduleNext(customDelay) {
+    clearTimeout(timer);
+    if (!playing) return;
+    const delay = customDelay !== undefined ? customDelay : SPEEDS[speedIdx];
+    timer = setTimeout(async () => {
+      current = (current + 1) % groups.length;
+      await showFrame(current);
+      scheduleNext();
+    }, delay);
+  }
+
+  function startProgress() {
+    clearInterval(progressTimer);
+    progressStart = Date.now();
+    const duration = SPEEDS[speedIdx];
+    progressBar.style.transition = 'none';
+    progressBar.style.width = '0%';
+    requestAnimationFrame(() => {
+      progressBar.style.transition = `width ${duration}ms linear`;
+      progressBar.style.width = '100%';
+    });
+  }
+
+  function pauseProgress() {
+    const computedWidth = progressBar.getBoundingClientRect().width;
+    const totalWidth = window.innerWidth;
+    const pct = totalWidth > 0 ? (computedWidth / totalWidth) * 100 : 0;
+    progressBar.style.transition = 'none';
+    progressBar.style.width = pct + '%';
+  }
+
+  function updateCounter() {
+    const g = groups[current];
+    if (!g) return;
+    counter.textContent = `${current + 1} / ${groups.length}`;
+    chapterLabel.textContent = g.chapterName || '';
+  }
+
+  function resumeProgress() {
+    const computedWidth = progressBar.getBoundingClientRect().width;
+    const totalWidth = window.innerWidth;
+    const remaining = totalWidth > 0 ? (1 - computedWidth / totalWidth) * SPEEDS[speedIdx] : SPEEDS[speedIdx];
+    progressBar.style.transition = `width ${remaining}ms linear`;
+    progressBar.style.width = '100%';
+    updateCounter();
+    return remaining;
+  }
+
+  prevBtn.addEventListener('click', async () => {
+    clearTimeout(timer);
+    current = (current - 1 + groups.length) % groups.length;
+    await showFrame(current);
+    if (playing) scheduleNext();
+  });
+
+  nextBtn.addEventListener('click', async () => {
+    clearTimeout(timer);
+    current = (current + 1) % groups.length;
+    await showFrame(current);
+    if (playing) scheduleNext();
+  });
+
+  playBtn.addEventListener('click', () => {
+    playing = !playing;
+    playBtn.innerHTML = playing ? '&#9646;&#9646;' : '&#9654;';
+    if (playing) { 
+      const remaining = resumeProgress(); 
+      scheduleNext(remaining); 
+    }
+    else { clearTimeout(timer); pauseProgress(); }
+  });
+
+  speedBtn.addEventListener('click', () => {
+    speedIdx = (speedIdx + 1) % SPEEDS.length;
+    speedBtn.textContent = SPEED_LABELS[speedIdx];
+    if (playing) { clearTimeout(timer); startProgress(); scheduleNext(); }
+  });
+
+  exitBtn.addEventListener('click', () => {
+    clearTimeout(timer);
+    clearInterval(progressTimer);
+    slideshow.style.display = 'none';
+    controls.style.display = 'none';
+    exitBtn.style.display = 'none';
+    chapterLabel.style.display = 'none';
+    progressBar.style.width = '0';
+    document.getElementById('landing').style.display = 'flex';
+    status.textContent = '';
+    folders = [];
+    renderFolderList();
+    updateStartBtn();
+    // Clean up blob urls
+    blobUrls.forEach(urls => urls && urls.forEach(u => URL.revokeObjectURL(u)));
+    slideshow.innerHTML = '';
+    frameEls = []; blobUrls = []; groups = []; allFiles = []; allChapters = [];
+    playing = true; playBtn.innerHTML = '&#9646;&#9646;';
+  });
+
+  document.addEventListener('keydown', async (e) => {
+    if (slideshow.style.display === 'none') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextBtn.click();
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevBtn.click();
+    else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+    else if (e.key === 'Escape') exitBtn.click();
+  });
+</script>
+</body>
+</html>
