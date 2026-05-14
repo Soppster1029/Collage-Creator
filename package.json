@@ -1,6 +1,7 @@
 {
   "name": "collage-creator",
   "version": "1.0.0",
+  "productName": "Collage Creator",
   "description": "Desktop collage slideshow creator",
   "main": "main.js",
   "scripts": {
@@ -17,9 +18,20 @@
   },
   "build": {
     "appId": "com.collage.creator",
+    "copyright": "Copyright © 2024",
+    "directories": {
+      "output": "dist"
+    },
     "win": {
       "target": ["nsis", "portable"],
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "publisherName": "Your Company Name"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "artifactName": "${productName} Setup ${version}.${ext}"
     },
     "mac": {
       "icon": "assets/icon.icns"
