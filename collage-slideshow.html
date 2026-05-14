@@ -153,6 +153,7 @@
     padding: 10px 20px;
     border-radius: 40px;
     border: 1px solid rgba(255,255,255,0.1);
+    transition: opacity 0.4s ease;
     z-index: 100;
   }
 
@@ -180,10 +181,11 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    height: 2px;
-    background: rgba(255,255,255,0.5);
+    height: 6px;
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
     transition: width 0.1s linear;
-    z-index: 100;
+    z-index: 9999;
   }
 
   #exitBtn {
@@ -197,6 +199,7 @@
     padding: 6px 14px;
     border-radius: 20px;
     cursor: pointer;
+    transition: opacity 0.4s ease;
     display: none;
     z-index: 100;
   }
@@ -214,6 +217,7 @@
     font-size: 0.82rem;
     padding: 5px 16px;
     border-radius: 20px;
+    transition: opacity 0.4s ease;
     display: none;
     z-index: 100;
     white-space: nowrap;
@@ -392,28 +396,16 @@
     const frame = document.createElement('div');
     frame.className = 'collage-frame';
 
-    const VW = window.innerWidth;
-    const VH = window.innerHeight;
-    const PAD = 6;
-    const BOTTOM_PAD = 22;
-    const MARGIN = 4;
-    const OVERLAP = 0.12;
-
     const n = imgData.length;
-    // Pick grid that best fits the actual count
-    let cols, rows;
-    if (n <= 2) { cols = n; rows = 1; }
-    else if (n === 3) { cols = 3; rows = 1; }
-    else if (n === 4) { cols = 2; rows = 2; }
-    else if (n === 5) { cols = 3; rows = 2; }
-    else { cols = 3; rows = 2; }
-    const slotW = (VW - MARGIN * 2) / cols;
-    const slotH = (VH - MARGIN * 2) / rows;
-
     const slots = [];
+    let cols = n <= 3 ? n : 3;
+    let rows = Math.ceil(n / cols);
+
     for (let r = 0; r < rows; r++)
       for (let c = 0; c < cols; c++)
         slots.push({ r, c });
+
+    // Shuffle slots
     for (let i = slots.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [slots[i], slots[j]] = [slots[j], slots[i]];
@@ -421,52 +413,75 @@
 
     imgData.forEach(({ url, w, h }, i) => {
       const slot = slots[i % slots.length];
-      const ar = w / h;
-      const isPortrait = ar < 0.95;
-
-      let maxImgW, maxImgH;
-      const availW = slotW * 0.99 - PAD * 2;
-      const availH = slotH * 0.99 - PAD - BOTTOM_PAD;
-
-      if (isPortrait) {
-        maxImgH = availH;
-        maxImgW = maxImgH * ar;
-        if (maxImgW > availW) { maxImgW = availW; maxImgH = maxImgW / ar; }
-      } else {
-        maxImgW = availW;
-        maxImgH = maxImgW / ar;
-        if (maxImgH > availH) { maxImgH = availH; maxImgW = maxImgH * ar; }
-      }
-
-      const cardW = maxImgW + PAD * 2;
-      const cardH = maxImgH + PAD + BOTTOM_PAD;
-
-      // Centre in slot with small random offset
-      const slotX = MARGIN + slot.c * slotW;
-      const slotY = MARGIN + slot.r * slotH;
-      const jitterX = (Math.random() - 0.5) * slotW * OVERLAP;
-      const jitterY = (Math.random() - 0.5) * slotH * OVERLAP;
-      const cx = slotX + slotW / 2 + jitterX;
-      const cy = slotY + slotH / 2 + jitterY;
-      const left = Math.max(MARGIN / 2, Math.min(VW - cardW - MARGIN / 2, cx - cardW / 2));
-      const top  = Math.max(MARGIN / 2, Math.min(VH - cardH - MARGIN / 2, cy - cardH / 2));
-
-      // Slight random rotation
-      const rot = (Math.random() - 0.5) * 6;
-
       const card = document.createElement('div');
       card.className = 'photo-card';
-      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${rot}deg);z-index:${i + 1};`;
+      
+      // Store original data for resizing without re-loading
+      card.dataset.w = w;
+      card.dataset.h = h;
+      card.dataset.slotC = slot.c;
+      card.dataset.slotR = slot.r;
+      card.dataset.jx = Math.random() - 0.5;
+      card.dataset.jy = Math.random() - 0.5;
+      card.dataset.rot = (Math.random() - 0.5) * 6;
+      card.dataset.zIndex = i + 1;
 
       const img = document.createElement('img');
       img.src = url;
-      img.alt = '';
-      img.style.cssText = `width:${maxImgW}px;height:${maxImgH}px;`;
       card.appendChild(img);
       frame.appendChild(card);
     });
 
+    updateFrameLayout(frame);
     return frame;
+  }
+
+  function updateFrameLayout(frame) {
+    if (!frame) return;
+    const VW = window.innerWidth;
+    const VH = window.innerHeight;
+    const PAD = 6, BOTTOM_PAD = 22, MARGIN = 4, OVERLAP = 0.12;
+
+    const cards = frame.querySelectorAll('.photo-card');
+    const n = cards.length;
+    let cols = n <= 3 ? n : 3;
+    let rows = Math.ceil(n / cols);
+
+    const slotW = (VW - MARGIN * 2) / cols;
+    const slotH = (VH - MARGIN * 2) / rows;
+
+    cards.forEach(card => {
+      const w = parseFloat(card.dataset.w);
+      const h = parseFloat(card.dataset.h);
+      const ar = w / h;
+      const availW = slotW * 0.99 - PAD * 2;
+      const availH = slotH * 0.99 - PAD - BOTTOM_PAD;
+
+      let imgW, imgH;
+      if (ar < 0.95) { // Portrait
+        imgH = availH;
+        imgW = imgH * ar;
+        if (imgW > availW) { imgW = availW; imgH = imgW / ar; }
+      } else {
+        imgW = availW;
+        imgH = imgW / ar;
+        if (imgH > availH) { imgH = availH; imgW = imgH * ar; }
+      }
+
+      const cardW = imgW + PAD * 2;
+      const cardH = imgH + PAD + BOTTOM_PAD;
+      const slotX = MARGIN + parseInt(card.dataset.slotC) * slotW;
+      const slotY = MARGIN + parseInt(card.dataset.slotR) * slotH;
+      
+      const cx = slotX + slotW / 2 + (parseFloat(card.dataset.jx) * slotW * OVERLAP);
+      const cy = slotY + slotH / 2 + (parseFloat(card.dataset.jy) * slotH * OVERLAP);
+      
+      const left = Math.max(MARGIN / 2, Math.min(VW - cardW - MARGIN / 2, cx - cardW / 2));
+      const top  = Math.max(MARGIN / 2, Math.min(VH - cardH - MARGIN / 2, cy - cardH / 2));
+
+      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${card.dataset.rot}deg);z-index:${card.dataset.zIndex};`;
+      card.querySelector('img').style.cssText = `width:${imgW}px;height:${imgH}px;`;
+    });
   }
 
   async function startSlideshow() {
@@ -517,7 +532,12 @@
     frameEls[idx].classList.add('active');
 
     updateCounter();
-    startProgress();
+    if (playing) {
+      startProgress();
+    } else {
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+    }
 
     // Preload next in background after a short delay
     const next = (idx + 1) % groups.length;
@@ -564,11 +584,24 @@
   }
 
   function resumeProgress() {
-    const computedWidth = progressBar.getBoundingClientRect().width;
+    // Get the current width as a percentage before resetting the transition
+    const style = window.getComputedStyle(progressBar);
+    const computedWidth = parseFloat(style.width);
     const totalWidth = window.innerWidth;
-    const remaining = totalWidth > 0 ? (1 - computedWidth / totalWidth) * SPEEDS[speedIdx] : SPEEDS[speedIdx];
-    progressBar.style.transition = `width ${remaining}ms linear`;
-    progressBar.style.width = '100%';
+    const currentPct = totalWidth > 0 ? (computedWidth / totalWidth) : 0;
+    const remaining = (1 - currentPct) * SPEEDS[speedIdx];
+
+    progressBar.style.transition = 'none';
+    progressBar.style.width = (currentPct * 100) + '%';
+    
+    // Force reflow to ensure the browser registers the non-transitioned width
+    progressBar.offsetHeight; 
+
+    if (playing) {
+      progressBar.style.transition = `width ${remaining}ms linear`;
+      progressBar.style.width = '100%';
+    }
+    
     updateCounter();
     return remaining;
   }
@@ -627,8 +660,79 @@
     if (slideshow.style.display === 'none') return;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextBtn.click();
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevBtn.click();
-    else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+    else if (e.key === ' ' || e.key.toLowerCase() === 'p') { e.preventDefault(); playBtn.click(); }
+    else if (e.key.toLowerCase() === 's') speedBtn.click();
+    else if (e.key.toLowerCase() === 'f') {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
     else if (e.key === 'Escape') exitBtn.click();
+  });
+
+  // Cursor inactivity logic
+  let cursorTimer;
+  const CURSOR_TIMEOUT = 3000; // 3 seconds
+
+  function setUIVisibility(visible) {
+    const opacity = visible ? '1' : '0';
+    const pointerEvents = visible ? 'auto' : 'none';
+    [controls, exitBtn, chapterLabel].forEach(el => {
+      if (!el) return;
+      el.style.opacity = opacity;
+      el.style.pointerEvents = pointerEvents;
+    });
+  }
+
+  function resetCursor() {
+    document.body.style.cursor = 'default';
+    setUIVisibility(true);
+    clearTimeout(cursorTimer);
+    
+    if (document.fullscreenElement) {
+      cursorTimer = setTimeout(() => {
+        document.body.style.cursor = 'none';
+        setUIVisibility(false);
+      }, CURSOR_TIMEOUT);
+    }
+  }
+
+  document.addEventListener('mousemove', resetCursor);
+  document.addEventListener('keydown', resetCursor);
+
+  // Handle layout and UI updates when toggling fullscreen or resizing
+  document.addEventListener('fullscreenchange', () => {
+    if (slideshow.style.display === 'block') {
+      // Update existing frame layout without reloading images
+      updateFrameLayout(frameEls[current]);
+      if (playing) {
+        const remaining = resumeProgress();
+        scheduleNext(remaining);
+      }
+    }
+
+    if (!document.fullscreenElement) {
+      clearTimeout(cursorTimer);
+      document.body.style.cursor = 'default';
+    } else {
+      resetCursor();
+    }
+  });
+
+  // Also handle general window resizing to keep layout consistent
+  window.addEventListener('resize', () => {
+    if (slideshow.style.display === 'block') {
+      // Update existing frame layout without reloading images
+      updateFrameLayout(frameEls[current]);
+      if (playing) {
+        const remaining = resumeProgress();
+        scheduleNext(remaining);
+      }
+    }
   });
 </script>
 </body>
