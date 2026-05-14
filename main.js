@@ -5,6 +5,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    show: false,
     fullscreen: false,
     backgroundColor: '#0a0a0a',
     icon: path.join(__dirname, 'assets/icon.png'),
@@ -17,6 +18,11 @@ function createWindow() {
 
   win.loadFile('collage-slideshow.html');
   win.setMenuBarVisibility(false);
+
+  // Prevents the initial white flash during load
+  win.once('ready-to-show', () => {
+    win.show();
+  });
 }
 
 // This method will be called when Electron has finished initialization
