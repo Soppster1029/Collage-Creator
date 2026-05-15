@@ -83,6 +83,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Strip icon for Portable HTML
+        if: matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          # Remove the favicon and landing page image tags to make it standalone
+          sed -i '/rel="icon"/d' collage-slideshow.html
+          sed -i '/src="assets\/icon.png"/d' collage-slideshow.html
+
       - name: Upload Portable HTML to Release
         if: matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
