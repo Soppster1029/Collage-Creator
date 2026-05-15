@@ -19,12 +19,6 @@ Download the latest version from the **Releases** section:
 - **macOS**: `.dmg` (Universal) --(Not Implemented Yet)
 - **Linux**: `.AppImage`, `.deb`, or `.rpm`
 
-### Linux Troubleshooting (Ubuntu 24.04+)
-If the application fails to launch after installation, it may be due to restricted unprivileged user namespaces. You can bypass this by running the application from your terminal with the following flag:
-```bash
-collage-creator --no-sandbox
-```
-
 ## Portable Web Version
 For the simplest use case on any device with a compatible browser, you can download the standalone `collage-slideshow.html` file from the **Releases** section and open it directly. This allows you to run the application without any installation or server configuration.
 
