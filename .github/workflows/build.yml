@@ -39,21 +39,36 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install Linux build dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools fpm
+        shell: bash
+
       - name: Fix permissions (Linux)
         if: runner.os == 'Linux'
         run: chmod +x node_modules/app-builder-bin/linux/x64/app-builder
         shell: bash
 
-      - name: Build
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            npm run build:win -- --publish always
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            npx electron-builder --mac --publish always
-          else
-            npx electron-builder --linux --publish always
-          fi
+      - name: Fix permissions (Windows)
+        if: runner.os == 'Windows'
+        run: chmod +x node_modules/app-builder-bin/win/x64/app-builder.exe
         shell: bash
+
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: npm run build:win -- --publish always
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (macOS)
+        if: matrix.os == 'macos-latest'
+        run: npx electron-builder --mac --publish always
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: npx electron-builder --linux --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
