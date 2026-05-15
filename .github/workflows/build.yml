@@ -1,4 +1,4 @@
-name: Build and Sign Windows App
+name: Build Windows and macOS App
 
 on:
   push:
@@ -8,7 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -23,11 +26,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build and Sign
-        run: npm run build:win
-        env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      - name: Build
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            npm run build:win
+          else
+            npx electron-builder --mac
+          fi
+        shell: bash
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -35,6 +41,8 @@ jobs:
         with:
           files: |
             dist/*.exe
+            dist/*.dmg
+            dist/*.zip
             dist/*.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
