@@ -32,9 +32,9 @@ jobs:
       - name: Build
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            npm run build:win
+            npm run build:win -- --publish never
           else
-            npx electron-builder --mac
+            npx electron-builder --mac --publish never
           fi
         shell: bash
 
