@@ -12,6 +12,7 @@ jobs:
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
 
     strategy:
       matrix:
@@ -21,12 +22,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to fetch all tags and history for release notes
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+
+      - name: Cache electron-builder dependencies
+        uses: actions/cache@v4
+        with:
+          path: .cache/electron-builder
+          key: ${{ runner.os }}-electron-builder-v2-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-electron-builder-v2-
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Sync version with tag
         run: |
@@ -36,12 +49,24 @@ jobs:
           npm version $VERSION --no-git-tag-version
         shell: bash
 
-      - name: Install dependencies
-        run: npm install
+      - name: Generate Release Notes
+        run: |
+          # Get the second most recent tag (the previous release)
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | sed -n '2p')
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found. Listing all commits."
+            git log --pretty=format:"* %s (%h)" > release-notes.md
+          else
+            echo "Listing commits between $PREVIOUS_TAG and HEAD"
+            git log --pretty=format:"* %s (%h)" ${PREVIOUS_TAG}..HEAD > release-notes.md
+          fi
+        shell: bash
 
       - name: Install Linux build dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install -y libarchive-tools fpm
+        run: |
+          sudo apt-get update --fix-missing
+          sudo apt-get install -y libarchive-tools fpm || (sleep 10 && sudo apt-get update && sudo apt-get install -y libarchive-tools fpm)
         shell: bash
 
       - name: Fix permissions (Linux)

@@ -17,6 +17,10 @@
     "electron-builder": "^24.9.1"
   },
   "build": {
+    "publish": {
+      "provider": "github",
+      "releaseNotesFile": "release-notes.md"
+    },
     "appId": "com.collage.creator",
     "copyright": "Copyright © 2024",
     "directories": {
