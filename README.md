@@ -100,3 +100,6 @@ npm start
 - [ ] **API Integration**: Develop APIs to connect with other photo management apps for seamless import and sync.
 - [ ] **Image Upload to Local Folder**: Add functionality to upload images directly to a local folder and trigger slideshow startup.
 - [ ] **TV App Support**: Create a TV-compatible version, either via browser connection or USB drive for direct playback on smart TVs.
+
+## License
+This project is licensed under a Non-Commercial License. See the [LICENSE](LICENSE) file for details.
