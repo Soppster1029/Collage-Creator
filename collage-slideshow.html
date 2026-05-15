@@ -8,6 +8,61 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* Header Menu System */
+  #appHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: #1a1a1a;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    z-index: 5000;
+    font-size: 0.8rem;
+    user-select: none;
+  }
+
+  .menu-item {
+    position: relative;
+    padding: 0 12px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: default;
+    color: #ccc;
+  }
+
+  .menu-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #252525;
+    border: 1px solid #333;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    min-width: 160px;
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+  }
+
+  .menu-item:hover .dropdown { display: flex; }
+
+  .dropdown-option {
+    padding: 8px 16px;
+    color: #ddd;
+    display: flex;
+    justify-content: space-between;
+    transition: background 0.1s;
+  }
+  .dropdown-option:hover { background: #353535; color: #fff; }
+  .dropdown-divider { height: 1px; background: #333; margin: 4px 0; }
+
   /* Custom Scrollbar Styling for a cohesive dark theme */
   * {
     scrollbar-width: thin;
@@ -31,7 +86,7 @@
   body {
     background: #0a0a0a;
     color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     height: 100vh;
     overflow: hidden;
     display: flex;
@@ -210,10 +265,10 @@
 
   #exitBtn {
     position: fixed;
-    top: 18px;
+    top: 48px; /* Lowered to clear the app header */
     right: 20px;
     background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
     color: #fff;
     font-size: 0.8rem;
     padding: 6px 14px;
@@ -221,13 +276,13 @@
     cursor: pointer;
     transition: opacity 0.4s ease;
     display: none;
-    z-index: 100;
+    z-index: 5001; /* Set higher than header to ensure clickability */
   }
   #exitBtn:hover { background: rgba(255,255,255,0.1); }
 
   #chapterLabel {
     position: fixed;
-    top: 18px;
+    top: 48px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0,0,0,0.55);
@@ -393,14 +448,13 @@
   <span id="counter"></span>
   <button id="nextBtn" title="Next">&#8594;</button>
   <button id="speedBtn" title="Speed">4s</button>
-  <button id="openSettingsSlideshow" title="Settings">&#9881;</button>
-  <button id="saveImageBtn" title="Save Image">&#128427;&#xFE0F;</button>
+  <button id="openSettingsSlideshowBtn" title="Settings">&#9881;</button>
 </div>
 <div id="progressBar"></div>
 <div id="chapterLabel"></div>
 <button id="exitBtn">&#x2715; Exit</button>
 
-<div id="settingsModal">
+<div id="settingsModal" class="modal-overlay">
   <div class="settings-card">
     <h2>Settings</h2>
     <div class="settings-grid">
@@ -519,6 +573,48 @@
   </div>
 </div>
 
+<!-- Help / About Modal -->
+<div id="helpModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(15px); z-index:6000; display:none; align-items:center; justify-content:center;">
+  <div class="settings-card" style="max-width: 500px; text-align: center;">
+    <img src="assets/icon.png" style="width:64px; margin: 0 auto 10px;">
+    <h2 id="aboutTitle">Collage Creator</h2>
+    <p id="aboutVersion" style="color:#888; margin-bottom: 20px;">v1.0.0</p>
+    
+    <div class="settings-section-title">License</div>
+    <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; font-size:0.7rem; color:#aaa; text-align:left; max-height:150px; overflow-y:auto; margin-bottom:20px; font-family:monospace; line-height:1.4;">
+      Non-Commercial License<br><br>
+      Copyright (c) 2024-2026 Collage Creator Team<br><br>
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files...
+    </div>
+
+    <div class="settings-footer">
+      <button id="releaseNotesBtn" style="background:#333; color:#fff; border:none; padding:12px; border-radius:12px; cursor:pointer; font-weight:600;">View Release Notes</button>
+      <button id="closeHelpBtn" style="background:#fff; color:#000; border:none; padding:12px; border-radius:12px; cursor:pointer; font-weight:600;">Close</button>
+    </div>
+  </div>
+</div>
+
+<header id="appHeader">
+  <div class="menu-item">
+    File
+    <div class="dropdown">
+      <div class="dropdown-option" id="menuSettings">Settings <span>&#9881;</span></div>
+      <div class="dropdown-option" id="menuSave">Save Current Slide <span>&#128427;</span></div>
+      <div class="dropdown-divider"></div>
+      <div class="dropdown-option" id="menuExit">Exit Slideshow <span>&#x2715;</span></div>
+      <div class="dropdown-option" id="menuQuit">Quit App</div>
+    </div>
+  </div>
+  <div class="menu-item">
+    Help
+    <div class="dropdown">
+      <div class="dropdown-option" id="menuAbout">About Collage Creator</div>
+      <div class="dropdown-option" id="menuRepo">GitHub Repository</div>
+    </div>
+  </div>
+  <div id="headerTitle" style="margin-left: auto; color: #555; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; padding-right: 25px;">COLLAGE CREATOR</div>
+</header>
+
 <div id="toast">Settings Saved!</div>
 
 <script>
@@ -587,7 +683,7 @@
   const settingTheme = document.getElementById('settingTheme');
   const settingFont = document.getElementById('settingFont');
   const settingFontSize = document.getElementById('settingFontSize');
-  const saveImageBtn = document.getElementById('saveImageBtn');
+  const openSettingsSlideshowBtn = document.getElementById('openSettingsSlideshowBtn');
   const settingShowBorders = document.getElementById('settingShowBorders');
   const settingCardColor = document.getElementById('settingCardColor');
   const settingBGColor = document.getElementById('settingBGColor');
@@ -699,6 +795,7 @@
 
   function toggleSettings(show) {
     settingsModal.style.display = show ? 'flex' : 'none';
+    if (show) setUIVisibility(true);
 
     // Pause slideshow if running when opening settings
     if (slideshow.style.display === 'block') {
@@ -723,8 +820,28 @@
     }
   }
 
-  document.getElementById('openSettingsLanding').onclick = () => toggleSettings(true);
-  document.getElementById('openSettingsSlideshow').onclick = () => toggleSettings(true);
+  // Header Menu Event Listeners
+  document.getElementById('menuSettings').onclick = () => toggleSettings(true);
+  document.getElementById('menuSave').onclick = () => triggerSave();
+  document.getElementById('menuExit').onclick = () => { if(slideshow.style.display === 'block') exitBtn.click(); };
+  document.getElementById('menuQuit').onclick = () => { if(window.electronAPI) window.close(); else exitBtn.click(); };
+  
+  document.getElementById('menuAbout').onclick = () => {
+    document.getElementById('helpModal').style.display = 'flex';
+    setUIVisibility(true);
+  };
+  document.getElementById('closeHelpBtn').onclick = () => {
+    document.getElementById('helpModal').style.display = 'none';
+  };
+  document.getElementById('menuRepo').onclick = () => {
+    window.open('https://github.com/Soppster1029/Collage-Creator', '_blank');
+  };
+  document.getElementById('releaseNotesBtn').onclick = () => {
+    window.open('https://github.com/Soppster1029/Collage-Creator/releases', '_blank');
+  };
+
+  // Re-link old UI buttons to the new menu logic
+  document.getElementById('openSettingsLanding').onclick = () => toggleSettings(true); // Keep for landing page
   document.getElementById('closeSettingsBtn').onclick = () => toggleSettings(false);
 
   saveSettingsBtn.onclick = async () => {
@@ -1157,7 +1274,7 @@
     else { clearTimeout(timer); pauseProgress(); }
   });
 
-  saveImageBtn.addEventListener('click', async () => {
+  async function triggerSave() {
     if (!groups[current]) return;
 
     if (window.electronAPI) {
@@ -1222,7 +1339,7 @@
         showToast('Failed to save image.');
       }
     }
-  });
+  }
 
   speedBtn.addEventListener('click', () => {
     speedIdx = (speedIdx + 1) % SPEEDS.length;
@@ -1231,6 +1348,11 @@
   });
 
   exitBtn.addEventListener('click', () => {
+    // If in fullscreen, exit it first
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => console.warn(err));
+    }
+
     clearTimeout(timer);
     clearInterval(progressTimer);
     slideshow.style.display = 'none';
@@ -1258,6 +1380,8 @@
     else if (e.key.toLowerCase() === 's') speedBtn.click();
     else if (e.key.toLowerCase() === 'f') {
       if (!document.fullscreenElement) {
+        // Ensure the header is visible when entering fullscreen
+        setUIVisibility(true);
         document.documentElement.requestFullscreen().catch(err => {
           console.warn(`Error attempting to enable fullscreen: ${err.message}`);
         });
@@ -1268,6 +1392,9 @@
     else if (e.key === 'Escape') exitBtn.click();
   });
 
+  // New event listener for the bottom settings button
+  openSettingsSlideshowBtn.addEventListener('click', () => toggleSettings(true));
+
   // Cursor inactivity logic
   let cursorTimer;
   const CURSOR_TIMEOUT = 3000; // 3 seconds
@@ -1275,12 +1402,14 @@
   function setUIVisibility(visible) {
     const opacity = visible ? '1' : '0';
     const pointerEvents = visible ? 'auto' : 'none';
-    [controls, exitBtn, chapterLabel].forEach(el => {
+    [controls, exitBtn, chapterLabel, document.getElementById('appHeader')].forEach(el => {
       if (!el) return;
       el.style.opacity = opacity;
       el.style.pointerEvents = pointerEvents;
     });
   }
+
+  
 
   function resetCursor() {
     document.body.style.cursor = 'default';
