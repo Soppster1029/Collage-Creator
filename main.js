@@ -108,12 +108,12 @@ app.whenReady().then(() => {
   });
 
   // Handler to save the current slide as an image
-  ipcMain.handle('save-current-slide', async (event, defaultFilename) => {
+  ipcMain.handle('save-current-slide', async (event, dataUrl, defaultFilename) => {
     const webContents = event.sender;
     const win = BrowserWindow.fromWebContents(webContents);
 
     try {
-      const image = await win.capturePage();
+      const image = nativeImage.createFromDataURL(dataUrl);
       const { filePath } = await dialog.showSaveDialog(win, {
         title: 'Save Collage Image',
         defaultPath: defaultFilename || 'collage-slide.png',
