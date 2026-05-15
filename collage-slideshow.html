@@ -394,6 +394,7 @@
   <button id="nextBtn" title="Next">&#8594;</button>
   <button id="speedBtn" title="Speed">4s</button>
   <button id="openSettingsSlideshow" title="Settings">&#9881;</button>
+  <button id="saveImageBtn" title="Save Image">&#128427;&#xFE0F;</button>
 </div>
 <div id="progressBar"></div>
 <div id="chapterLabel"></div>
@@ -586,6 +587,7 @@
   const settingTheme = document.getElementById('settingTheme');
   const settingFont = document.getElementById('settingFont');
   const settingFontSize = document.getElementById('settingFontSize');
+  const saveImageBtn = document.getElementById('saveImageBtn');
   const settingShowBorders = document.getElementById('settingShowBorders');
   const settingCardColor = document.getElementById('settingCardColor');
   const settingBGColor = document.getElementById('settingBGColor');
@@ -1153,6 +1155,73 @@
       scheduleNext(remaining); 
     }
     else { clearTimeout(timer); pauseProgress(); }
+  });
+
+  saveImageBtn.addEventListener('click', async () => {
+    if (!groups[current]) return;
+
+    if (window.electronAPI) {
+      const chapterName = groups[current].chapterName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const filename = `collage-slide-${chapterName}-${current + 1}.png`;
+      const success = await window.electronAPI.saveCurrentSlide(filename);
+      if (success) showToast('Image Saved!');
+    } else {
+      // Browser Fallback: Manually render collage to a canvas for "run serve" or portable HTML
+      try {
+        const activeFrame = frameEls[current];
+        if (!activeFrame) return;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr);
+
+        // 1. Background
+        ctx.fillStyle = backgroundColor;
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+        // 2. Render Cards in Z-order
+        const cards = Array.from(activeFrame.querySelectorAll('.photo-card'))
+          .sort((a, b) => (parseInt(a.style.zIndex) || 0) - (parseInt(b.style.zIndex) || 0));
+
+        for (const card of cards) {
+          const img = card.querySelector('img');
+          const w = parseFloat(card.style.width);
+          const h = parseFloat(card.style.height);
+          const x = parseFloat(card.style.left);
+          const y = parseFloat(card.style.top);
+          const rot = (layoutStyle === 'grid') ? 0 : parseFloat(card.dataset.rot || 0);
+
+          ctx.save();
+          ctx.translate(x + w/2, y + h/2);
+          ctx.rotate(rot * Math.PI / 180);
+
+          if (showBorders) {
+            ctx.fillStyle = cardColor;
+            if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(-w/2, -h/2, w, h, borderRadius); ctx.fill(); }
+            else { ctx.fillRect(-w/2, -h/2, w, h); }
+          }
+
+          ctx.filter = imageFilter === 'none' ? 'none' : imageFilter;
+          const pad = showBorders ? 6 : 0;
+          ctx.drawImage(img, -w/2 + pad, -h/2 + pad, parseFloat(img.style.width), parseFloat(img.style.height));
+          ctx.restore();
+        }
+
+        // 3. Trigger Download
+        const link = document.createElement('a');
+        link.download = `collage-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('Image Saved!');
+      } catch (err) {
+        console.error('Export failed:', err);
+        showToast('Failed to save image.');
+      }
+    }
   });
 
   speedBtn.addEventListener('click', () => {

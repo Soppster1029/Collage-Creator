@@ -106,6 +106,32 @@ app.whenReady().then(() => {
       detail: `${pkg.build.copyright}\n\nLicense: Non-Commercial\n\n${pkg.description}`
     });
   });
+
+  // Handler to save the current slide as an image
+  ipcMain.handle('save-current-slide', async (event, defaultFilename) => {
+    const webContents = event.sender;
+    const win = BrowserWindow.fromWebContents(webContents);
+
+    try {
+      const image = await win.capturePage();
+      const { filePath } = await dialog.showSaveDialog(win, {
+        title: 'Save Collage Image',
+        defaultPath: defaultFilename || 'collage-slide.png',
+        filters: [
+          { name: 'Images', extensions: ['png', 'jpg', 'jpeg'] }
+        ]
+      });
+
+      if (filePath) {
+        fs.writeFileSync(filePath, image.toPNG());
+        return true; // Indicate success
+      }
+    } catch (error) {
+      console.error('Failed to save image:', error);
+      return false; // Indicate failure
+    }
+    return false; // User cancelled save dialog
+  });
 });
 
 // Quit when all windows are closed, except on macOS.

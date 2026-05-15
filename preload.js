@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Settings persistent storage
   getSettings: () => ipcRenderer.invoke('get-settings'),
-  saveSettings: (settings) => ipcRenderer.send('save-settings', settings)
+  saveSettings: (settings) => ipcRenderer.send('save-settings', settings),
+  saveCurrentSlide: (defaultFilename) => ipcRenderer.invoke('save-current-slide', defaultFilename)
 });

@@ -91,7 +91,6 @@ npm start
 - [x] **Enhanced Customization**: Added options for adjustable collage size, image count per slide, and transition speeds with persistent user preferences.
 - [x] **Image Effects and Filters**: Added support for CSS-based filters including Grayscale, Sepia, Vintage, and Vibrant modes.
 - [x] **Themes and UI Improvements**: Implemented custom border colors, corner rounding, and slideshow background color settings.
-- [ ] **Export Functionality**: Allow exporting slideshows as videos or image sequences for sharing.
 - [ ] **Auto-Update Feature**: Implement automatic updates for new versions across platforms.
 - [ ] **Auto-Use Folder on Startup**: Allow users to set a default folder that loads automatically when the app starts.
 - [ ] **Auto-Play Mode**: Enable automatic slideshow playback without manual intervention.
