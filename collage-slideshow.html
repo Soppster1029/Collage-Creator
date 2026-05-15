@@ -8,6 +8,26 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* Custom Scrollbar Styling for a cohesive dark theme */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
   body {
     background: #0a0a0a;
     color: #fff;
@@ -242,13 +262,34 @@
     padding: 30px;
     border-radius: 24px;
     width: 90%;
-    max-width: 400px;
+    max-width: 750px;
     display: flex;
     flex-direction: column;
+    max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+    overflow-y: auto; /* Add scrollbar if content overflows */
     gap: 20px;
   }
 
   .settings-card h2 { font-weight: 300; margin-bottom: 10px; }
+
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .settings-section-title {
+    grid-column: span 2;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #888;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 4px;
+    margin-top: 10px;
+  }
+
   .setting-group { display: flex; flex-direction: column; gap: 8px; }
   .setting-group label { font-size: 0.85rem; color: #888; font-weight: 500; }
   .setting-info { font-size: 0.72rem; color: #555; line-height: 1.4; margin-top: -4px; }
@@ -286,9 +327,28 @@
     margin-top: 10px;
   }
 
+  .settings-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  @media (max-width: 650px) {
+    .settings-grid { grid-template-columns: 1fr; gap: 20px; }
+    /* max-height and overflow-y are now handled by the general .settings-card rule */
+  }
+
   /* Specific styles for range input to fix padding issue */
   .setting-group input[type="range"] {
     padding: 0; /* Remove padding that might be causing the gap */
+  }
+
+  .setting-group input[type="color"] {
+    width: 38px;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid #333;
+    cursor: pointer;
   }
 
   /* Toast Notification */
@@ -342,49 +402,119 @@
 <div id="settingsModal">
   <div class="settings-card">
     <h2>Settings</h2>
-    <div class="setting-group">
-      <label>Images per slide</label>
-      <div class="setting-info">Determines how many photos are grouped together into a single collage cluster.</div>
-      <input type="number" id="settingImageCount" min="1" max="12">
+    <div class="settings-grid">
+      <!-- Section: Slideshow & Layout -->
+      <div class="settings-section-title">Slideshow & Layout</div>
+      <div class="setting-group">
+        <label>Images per slide</label>
+        <div class="setting-info">Determines how many photos are grouped together into a single collage cluster.</div>
+        <input type="number" id="settingImageCount" min="1" max="12">
+      </div>
+      <div class="setting-group">
+        <label>Transition Speed</label>
+        <div class="setting-info">Sets the interval for how long each collage stays on screen.</div>
+        <select id="settingSpeed">
+          <option value="2000">2 Secs</option>
+          <option value="4000">4 Secs</option>
+          <option value="6000">6 Secs</option>
+          <option value="10000">10 Secs</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label>Layout Style</label>
+        <div class="setting-info">Choose how images are arranged on each slide.</div>
+        <select id="settingLayout">
+          <option value="scattered">Scattered (Classic)</option>
+          <option value="grid">Grid (Clean)</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label>Collage Scaling</label>
+        <div class="setting-info">Adjust the overall size of the image clusters relative to the screen.</div>
+        <input type="range" id="settingScale" min="0.5" max="1.5" step="0.1">
+      </div>
+
+      <!-- Section: Visual Style -->
+      <div class="settings-section-title">Visual Style</div>
+      <div class="setting-group">
+        <label>Theme Presets</label>
+        <div class="setting-info">Quickly switch between pre-defined visual styles.</div>
+        <select id="settingTheme">
+          <option value="custom">Custom (Manual)</option>
+          <option value="dark">Standard Dark</option>
+          <option value="light">Standard Light</option>
+          <option value="midnight">Modern Midnight</option>
+          <option value="vintage">Classic Vintage</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label>Image Filter</label>
+        <div class="setting-info">Apply visual effects like Grayscale or Sepia to all images.</div>
+        <select id="settingFilter">
+          <option value="none">None</option>
+          <option value="grayscale(100%)">Grayscale</option>
+          <option value="sepia(100%)">Sepia</option>
+          <option value="saturate(1.8) contrast(1.1)">Vibrant</option>
+          <option value="sepia(0.4) brightness(0.9) contrast(1.1)">Vintage</option>
+          <option value="brightness(1.1) saturate(1.3) sepia(0.2)">Warm</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label>Show Image Borders</label>
+        <div class="setting-info">Enable or disable decorative borders and shadows.</div>
+        <input type="checkbox" id="settingShowBorders" style="width: 20px; height: 20px; margin-top: 5px;">
+      </div>
+      <div class="setting-group">
+        <label>Corner Rounding (px)</label>
+        <div class="setting-info">Adjust how rounded the corners of the photos appear.</div>
+        <input type="range" id="settingRadius" min="0" max="40" step="2">
+      </div>
+
+      <!-- Section: Colors -->
+      <div class="settings-section-title">Colors</div>
+      <div class="setting-group" style="grid-column: span 2;">
+        <div style="display: flex; gap: 32px; margin-top: 5px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="color" id="settingCardColor">
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 0.75rem; color: #fff; font-weight: 500;">Photo Frame</span>
+              <span id="cardColorHex" style="font-size: 0.65rem; color: #666; font-family: monospace;">#FFFFFF</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="color" id="settingBGColor">
+            <div style="display: flex; flex-direction: column;">
+              <span style="font-size: 0.75rem; color: #fff; font-weight: 500;">Background</span>
+              <span id="bgColorHex" style="font-size: 0.65rem; color: #666; font-family: monospace;">#111111</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Typography -->
+      <div class="settings-section-title">Typography</div>
+      <div class="setting-group">
+        <label>Chapter Font Style</label>
+        <div class="setting-info">Choose the typography for text overlays.</div>
+        <select id="settingFont">
+          <option value="sans-serif">Sans-Serif (Standard)</option>
+          <option value="serif">Serif (Elegant)</option>
+          <option value="monospace">Monospace (Tech)</option>
+          <option value="cursive">Cursive (Artistic)</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label>Font Size (rem)</label>
+        <div class="setting-info">Adjust the size of the chapter labels.</div>
+        <input type="range" id="settingFontSize" min="0.5" max="2.0" step="0.1">
+      </div>
     </div>
-    <div class="setting-group">
-      <label>Default Transition Speed (Secs)</label>
-      <div class="setting-info">Sets the interval for how long each collage stays on screen during playback.</div>
-      <select id="settingSpeed">
-        <option value="2000">2 Secs</option>
-        <option value="4000">4 Secs</option>
-        <option value="6000">6 Secs</option>
-        <option value="10000">10 Secs</option>
-      </select>
-    </div>
-    <div class="setting-group">
-      <label>Collage Scaling</label>
-      <div class="setting-info">Adjusts the overall size of the image clusters relative to the screen dimensions.</div>
-      <input type="range" id="settingScale" min="0.5" max="1.5" step="0.1">
-    </div>
-    <div class="setting-group">
-      <label>Layout Style</label>
-      <div class="setting-info">Choose how images are arranged on each slide.</div>
-      <select id="settingLayout">
-        <option value="scattered">Scattered (Classic)</option>
-        <option value="grid">Grid (Clean)</option>
-      </select>
-    </div>
-    <div class="setting-group">
-      <label>Image Filter</label>
-      <div class="setting-info">Apply visual effects to all images in the slideshow.</div>
-      <select id="settingFilter">
-        <option value="none">None</option>
-        <option value="grayscale(100%)">Grayscale</option>
-        <option value="sepia(100%)">Sepia</option>
-        <option value="saturate(1.8) contrast(1.1)">Vibrant</option>
-        <option value="sepia(0.4) brightness(0.9) contrast(1.1)">Vintage</option>
-        <option value="brightness(1.1) saturate(1.3) sepia(0.2)">Warm</option>
-      </select>
-    </div>
+
+    <div class="settings-footer">
     <button id="saveSettingsBtn">Apply & Save</button>
     <button id="resetSettingsBtn">Reset to Defaults</button>
     <button id="closeSettingsBtn" style="background:none; border:none; color:#666; cursor:pointer; font-size:0.85rem;">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -395,12 +525,34 @@
   let collageScale = 1.0;
   let layoutStyle = 'scattered';
   let imageFilter = 'none';
+  let showBorders = false;
+  let fontSize = 0.8;
+  let cardColor = '#ffffff';
+  let fontStyle = 'sans-serif';
+  let theme = 'dark';
+  let borderRadius = 0;
+  let backgroundColor = '#111111';
+
+  const THEMES = {
+    dark: { cardColor: '#333333', backgroundColor: '#111111', imageFilter: 'none' },
+    light: { cardColor: '#ffffff', backgroundColor: '#eeeeee', imageFilter: 'none' },
+    midnight: { cardColor: '#1a1a1a', backgroundColor: '#0a0a0a', imageFilter: 'none' },
+    vintage: { cardColor: '#eaddca', backgroundColor: '#2b2622', imageFilter: 'sepia(0.4) brightness(0.9) contrast(1.1)' }
+  };
+
   const DEFAULTS = {
     imageCount: 6,
     transitionSpeed: 4000,
     collageSize: 1.0,
     layoutStyle: 'scattered',
-    imageFilter: 'none'
+    imageFilter: 'none',
+    theme: 'dark',
+    cardColor: '#ffffff',
+    borderRadius: 0,
+    backgroundColor: '#111111',
+    fontStyle: 'sans-serif',
+    fontSize: 0.8,
+    showBorders: false
   };
 
   const SPEEDS = [2000, 4000, 6000, 10000];
@@ -421,6 +573,7 @@
   const counter = document.getElementById('counter');
   const progressBar = document.getElementById('progressBar');
   const chapterLabel = document.getElementById('chapterLabel');
+  let wasPlayingBeforeSettings = false;
   const exitBtn = document.getElementById('exitBtn');
 
   // Settings Logic
@@ -430,6 +583,15 @@
   const settingScale = document.getElementById('settingScale');
   const settingLayout = document.getElementById('settingLayout');
   const settingFilter = document.getElementById('settingFilter');
+  const settingTheme = document.getElementById('settingTheme');
+  const settingFont = document.getElementById('settingFont');
+  const settingFontSize = document.getElementById('settingFontSize');
+  const settingShowBorders = document.getElementById('settingShowBorders');
+  const settingCardColor = document.getElementById('settingCardColor');
+  const settingBGColor = document.getElementById('settingBGColor');
+  const settingRadius = document.getElementById('settingRadius');
+  const cardColorHex = document.getElementById('cardColorHex');
+  const bgColorHex = document.getElementById('bgColorHex');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
   const resetSettingsBtn = document.getElementById('resetSettingsBtn');
   const toast = document.getElementById('toast');
@@ -439,6 +601,33 @@
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2500);
   }
+
+  // Live color feedback
+  settingTheme.onchange = () => {
+    const t = THEMES[settingTheme.value];
+    if (t) {
+      settingCardColor.value = t.cardColor;
+      settingBGColor.value = t.backgroundColor;
+      settingFilter.value = t.imageFilter;
+      
+      cardColorHex.textContent = t.cardColor.toUpperCase();
+      bgColorHex.textContent = t.backgroundColor.toUpperCase();
+    }
+  };
+
+  settingCardColor.oninput = () => {
+    cardColorHex.textContent = settingCardColor.value.toUpperCase();
+    settingTheme.value = 'custom';
+  };
+
+  settingBGColor.oninput = () => {
+    bgColorHex.textContent = settingBGColor.value.toUpperCase();
+    settingTheme.value = 'custom';
+  };
+
+  settingFilter.onchange = () => {
+    settingTheme.value = 'custom';
+  };
 
   async function initSettings() {
     let settings;
@@ -471,6 +660,13 @@
 
     layoutStyle = s.layoutStyle || DEFAULTS.layoutStyle;
     imageFilter = s.imageFilter || DEFAULTS.imageFilter;
+    theme = s.theme || DEFAULTS.theme;
+    fontSize = s.fontSize !== undefined ? parseFloat(s.fontSize) : DEFAULTS.fontSize;
+    showBorders = s.showBorders !== undefined ? s.showBorders : DEFAULTS.showBorders;
+    fontStyle = s.fontStyle || DEFAULTS.fontStyle;
+    cardColor = s.cardColor || DEFAULTS.cardColor;
+    borderRadius = s.borderRadius !== undefined ? s.borderRadius : DEFAULTS.borderRadius;
+    backgroundColor = s.backgroundColor || DEFAULTS.backgroundColor;
 
     speedIdx = SPEEDS.indexOf(currentSpeed);
     if (speedIdx === -1) speedIdx = 1; // Default to index 1 (4s)
@@ -478,15 +674,51 @@
     // Update UI inputs explicitly as strings to prevent blank boxes
     settingImageCount.value = imagesPerGroup.toString();
     settingFilter.value = imageFilter;
+    settingTheme.value = theme;
+    settingFont.value = fontStyle;
+    settingShowBorders.checked = showBorders;
+    settingFontSize.value = fontSize;
     settingLayout.value = layoutStyle;
     settingSpeed.value = SPEEDS[speedIdx].toString();
     settingScale.value = collageScale;
+    settingCardColor.value = cardColor;
+    settingBGColor.value = backgroundColor;
+    settingRadius.value = borderRadius;
+
+    // Update hex text labels
+    cardColorHex.textContent = cardColor.toUpperCase();
+    bgColorHex.textContent = backgroundColor.toUpperCase();
+
+    [chapterLabel, counter].forEach(el => el.style.fontFamily = fontStyle);
+    chapterLabel.style.fontSize = fontSize + 'rem';
     
     if (speedBtn) speedBtn.textContent = SPEED_LABELS[speedIdx];
   }
 
   function toggleSettings(show) {
     settingsModal.style.display = show ? 'flex' : 'none';
+
+    // Pause slideshow if running when opening settings
+    if (slideshow.style.display === 'block') {
+      if (show) {
+        wasPlayingBeforeSettings = playing;
+        if (playing) {
+          playing = false;
+          playBtn.innerHTML = '&#9654;';
+          clearTimeout(timer);
+          pauseProgress();
+        }
+      } else {
+        // Resume slideshow if it was playing before opening settings
+        if (wasPlayingBeforeSettings) {
+          playing = true;
+          playBtn.innerHTML = '&#9646;&#9646;';
+          const remaining = resumeProgress(); 
+          scheduleNext(remaining);
+        }
+        wasPlayingBeforeSettings = false;
+      }
+    }
   }
 
   document.getElementById('openSettingsLanding').onclick = () => toggleSettings(true);
@@ -499,7 +731,14 @@
       transitionSpeed: parseInt(settingSpeed.value) || DEFAULTS.transitionSpeed,
       collageSize: parseFloat(settingScale.value) || DEFAULTS.collageSize,
       layoutStyle: settingLayout.value,
-      imageFilter: settingFilter.value
+      showBorders: settingShowBorders.checked,
+      fontSize: parseFloat(settingFontSize.value),
+      fontStyle: settingFont.value,
+      theme: settingTheme.value,
+      imageFilter: settingFilter.value,
+      cardColor: settingCardColor.value,
+      backgroundColor: settingBGColor.value,
+      borderRadius: parseInt(settingRadius.value)
     };
     
     if (window.electronAPI) window.electronAPI.saveSettings(newSettings);
@@ -507,11 +746,19 @@
 
     showToast('Settings Saved!');
 
-    updateVariables(newSettings);
+    const resume = wasPlayingBeforeSettings;
+    wasPlayingBeforeSettings = false; // Prevent auto-resume in toggleSettings
+
     toggleSettings(false);
+    updateVariables(newSettings);
+
     if (slideshow.style.display === 'block') {
+      clearTimeout(timer);
       await buildGroups();
-      showFrame(current);
+      playing = resume; 
+      playBtn.innerHTML = playing ? '&#9646;&#9646;' : '&#9654;';
+      await showFrame(current);
+      if (playing) scheduleNext();
     }
   };
 
@@ -521,6 +768,15 @@
     settingScale.value = DEFAULTS.collageSize;
     settingLayout.value = DEFAULTS.layoutStyle;
     settingFilter.value = DEFAULTS.imageFilter;
+    settingShowBorders.checked = DEFAULTS.showBorders;
+    settingFontSize.value = DEFAULTS.fontSize;
+    settingFont.value = DEFAULTS.fontStyle;
+    settingTheme.value = DEFAULTS.theme;
+    settingCardColor.value = DEFAULTS.cardColor;
+    settingBGColor.value = DEFAULTS.backgroundColor;
+    settingRadius.value = DEFAULTS.borderRadius;
+    cardColorHex.textContent = DEFAULTS.cardColor.toUpperCase();
+    bgColorHex.textContent = DEFAULTS.backgroundColor.toUpperCase();
   };
 
   let current = 0;
@@ -692,9 +948,12 @@
 
   function updateFrameLayout(frame) {
     if (!frame) return;
+    frame.style.backgroundColor = backgroundColor;
     const VW = window.innerWidth;
     const VH = window.innerHeight;
-    const PAD = 6, BOTTOM_PAD = 22, MARGIN = 4, OVERLAP = 0.12;
+    const PAD = showBorders ? 6 : 0;
+    const BOTTOM_PAD = showBorders ? 22 : 0;
+    const MARGIN = 4, OVERLAP = 0.12;
 
     const cards = frame.querySelectorAll('.photo-card');
     const n = cards.length;
@@ -741,7 +1000,11 @@
         rotation = card.dataset.rot;
       }
 
-      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${rotation}deg);z-index:${card.dataset.zIndex};`;
+      const shadow = showBorders ? '0 6px 28px rgba(0,0,0,0.7)' : 'none';
+      const bg = showBorders ? cardColor : 'transparent';
+      const padding = showBorders ? `${PAD}px ${PAD}px ${BOTTOM_PAD}px ${PAD}px` : '0';
+
+      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${rotation}deg);z-index:${card.dataset.zIndex}; background:${bg}; border-radius:${borderRadius}px; box-shadow:${shadow}; padding:${padding};`;
       card.querySelector('img').style.cssText = `width:${imgW}px;height:${imgH}px; filter: ${imageFilter};`;
     });
   }

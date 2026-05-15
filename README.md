@@ -3,7 +3,7 @@ A sleek, cross-platform desktop and browser application that transforms your loc
 
 ## Features
 - **Smart Folder Scanning**: Add one or multiple folders. The app automatically organizes images into "chapters" based on subfolders.
-- **Extensive Customization**: Fine-tune the experience via a dedicated settings menu. Adjust collage scaling, image density (1-12 images per slide), and transition speeds.
+- **Extensive Customization**: Fine-tune the experience via a dedicated settings menu. Adjust collage scaling, image density (1-12 images per slide), transition speeds, and font styles/sizes.
 - **Flexible Layout Styles**: Choose between a randomized "Scattered" aesthetic or a clean, organized "Grid" arrangement.
 - **Persistent Preferences**: Your configuration is automatically saved and restored across sessions, ensuring a consistent experience every time you open the app.
 - **Smooth Transitions**: Features background preloading and progress bars for a seamless viewing experience.
@@ -90,7 +90,7 @@ npm start
 - [x] **Settings Menu**: Integrated into the main slideshow interface with persistence.
 - [x] **Enhanced Customization**: Added options for adjustable collage size, image count per slide, and transition speeds with persistent user preferences.
 - [x] **Image Effects and Filters**: Added support for CSS-based filters including Grayscale, Sepia, Vintage, and Vibrant modes.
-- [ ] **Themes and UI Improvements**: Implement dark mode, custom themes, Image Borders, and improved user interface elements.
+- [x] **Themes and UI Improvements**: Implemented custom border colors, corner rounding, and slideshow background color settings.
 - [ ] **Export Functionality**: Allow exporting slideshows as videos or image sequences for sharing.
 - [ ] **Auto-Update Feature**: Implement automatic updates for new versions across platforms.
 - [ ] **Auto-Use Folder on Startup**: Allow users to set a default folder that loads automatically when the app starts.

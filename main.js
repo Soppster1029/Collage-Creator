@@ -35,7 +35,14 @@ const DEFAULT_SETTINGS = {
   imageCount: 6,
   transitionSpeed: 4000,
   layoutStyle: 'scattered',
-  imageFilter: 'none'
+  imageFilter: 'none',
+  cardColor: '#ffffff',
+  borderRadius: 0,
+  backgroundColor: '#111111',
+  theme: 'dark',
+  fontStyle: 'sans-serif',
+  fontSize: 0.8,
+  showBorders: false
 };
 
 function loadSettings() {
