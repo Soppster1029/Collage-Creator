@@ -89,13 +89,13 @@ npm start
 ## Roadmap
 - [x] **Settings Menu**: Integrated into the main slideshow interface with persistence.
 - [x] **Enhanced Customization**: Added options for adjustable collage size, image count per slide, and transition speeds with persistent user preferences.
-- [ ] **Image Effects and Filters**: Introduce basic image processing like brightness, contrast, and filters for a more personalized experience.
+- [x] **Image Effects and Filters**: Added support for CSS-based filters including Grayscale, Sepia, Vintage, and Vibrant modes.
 - [ ] **Themes and UI Improvements**: Implement dark mode, custom themes, Image Borders, and improved user interface elements.
 - [ ] **Export Functionality**: Allow exporting slideshows as videos or image sequences for sharing.
-- [ ] **Audio Integration**: Add background music playback with playlist support.
 - [ ] **Auto-Update Feature**: Implement automatic updates for new versions across platforms.
 - [ ] **Auto-Use Folder on Startup**: Allow users to set a default folder that loads automatically when the app starts.
 - [ ] **Auto-Play Mode**: Enable automatic slideshow playback without manual intervention.
+- [ ] **Audio Integration**: Add background music playback with playlist support.
 - [ ] **Image Upload to Local Folder**: Add functionality to upload images directly to a local folder and trigger slideshow startup.
 - [ ] **API Integration**: Develop APIs to connect with other photo management apps for seamless import and sync.
 - [ ] **Performance Optimizations**: Further enhance loading times and support for larger image collections.

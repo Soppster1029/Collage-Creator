@@ -34,7 +34,8 @@ const DEFAULT_SETTINGS = {
   collageSize: 1.0,
   imageCount: 6,
   transitionSpeed: 4000,
-  layoutStyle: 'scattered'
+  layoutStyle: 'scattered',
+  imageFilter: 'none'
 };
 
 function loadSettings() {

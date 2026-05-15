@@ -370,6 +370,18 @@
         <option value="grid">Grid (Clean)</option>
       </select>
     </div>
+    <div class="setting-group">
+      <label>Image Filter</label>
+      <div class="setting-info">Apply visual effects to all images in the slideshow.</div>
+      <select id="settingFilter">
+        <option value="none">None</option>
+        <option value="grayscale(100%)">Grayscale</option>
+        <option value="sepia(100%)">Sepia</option>
+        <option value="saturate(1.8) contrast(1.1)">Vibrant</option>
+        <option value="sepia(0.4) brightness(0.9) contrast(1.1)">Vintage</option>
+        <option value="brightness(1.1) saturate(1.3) sepia(0.2)">Warm</option>
+      </select>
+    </div>
     <button id="saveSettingsBtn">Apply & Save</button>
     <button id="resetSettingsBtn">Reset to Defaults</button>
     <button id="closeSettingsBtn" style="background:none; border:none; color:#666; cursor:pointer; font-size:0.85rem;">Cancel</button>
@@ -382,11 +394,13 @@
   let imagesPerGroup = 6;
   let collageScale = 1.0;
   let layoutStyle = 'scattered';
+  let imageFilter = 'none';
   const DEFAULTS = {
     imageCount: 6,
     transitionSpeed: 4000,
     collageSize: 1.0,
-    layoutStyle: 'scattered'
+    layoutStyle: 'scattered',
+    imageFilter: 'none'
   };
 
   const SPEEDS = [2000, 4000, 6000, 10000];
@@ -415,6 +429,7 @@
   const settingSpeed = document.getElementById('settingSpeed');
   const settingScale = document.getElementById('settingScale');
   const settingLayout = document.getElementById('settingLayout');
+  const settingFilter = document.getElementById('settingFilter');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
   const resetSettingsBtn = document.getElementById('resetSettingsBtn');
   const toast = document.getElementById('toast');
@@ -455,12 +470,14 @@
     const currentSpeed = !isNaN(speed) ? speed : DEFAULTS.transitionSpeed;
 
     layoutStyle = s.layoutStyle || DEFAULTS.layoutStyle;
+    imageFilter = s.imageFilter || DEFAULTS.imageFilter;
 
     speedIdx = SPEEDS.indexOf(currentSpeed);
     if (speedIdx === -1) speedIdx = 1; // Default to index 1 (4s)
 
     // Update UI inputs explicitly as strings to prevent blank boxes
     settingImageCount.value = imagesPerGroup.toString();
+    settingFilter.value = imageFilter;
     settingLayout.value = layoutStyle;
     settingSpeed.value = SPEEDS[speedIdx].toString();
     settingScale.value = collageScale;
@@ -481,7 +498,8 @@
       imageCount: parseInt(settingImageCount.value) || DEFAULTS.imageCount,
       transitionSpeed: parseInt(settingSpeed.value) || DEFAULTS.transitionSpeed,
       collageSize: parseFloat(settingScale.value) || DEFAULTS.collageSize,
-      layoutStyle: settingLayout.value
+      layoutStyle: settingLayout.value,
+      imageFilter: settingFilter.value
     };
     
     if (window.electronAPI) window.electronAPI.saveSettings(newSettings);
@@ -502,6 +520,7 @@
     settingSpeed.value = DEFAULTS.transitionSpeed.toString();
     settingScale.value = DEFAULTS.collageSize;
     settingLayout.value = DEFAULTS.layoutStyle;
+    settingFilter.value = DEFAULTS.imageFilter;
   };
 
   let current = 0;
@@ -723,7 +742,7 @@
       }
 
       card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${rotation}deg);z-index:${card.dataset.zIndex};`;
-      card.querySelector('img').style.cssText = `width:${imgW}px;height:${imgH}px;`;
+      card.querySelector('img').style.cssText = `width:${imgW}px;height:${imgH}px; filter: ${imageFilter};`;
     });
   }
 
