@@ -41,8 +41,14 @@
     },
     "linux": {
       "maintainer": "Collage Creator Team",
-      "target": ["AppImage", "deb", "rpm"],
-      "icon": "assets/icon.png"
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icon.png",
+      "category": "Graphics",
+      "executableName": "collage-creator",
+      "desktop": {
+        "StartupWMClass": "Collage Creator",
+        "args": ["--no-sandbox"]
+      }
     }
   }
 }
