@@ -17,6 +17,11 @@ Download the latest version from the **Releases** section:
 - **macOS**: `.dmg` (Universal)
 - **Linux**: `.AppImage`, `.deb`, or `.rpm`
 
+## Portable Web Version
+For the simplest use case on any device with a compatible browser, you can download the standalone `collage-slideshow.html` file from the **Releases** section and open it directly. This allows you to run the application without any installation or server configuration.
+
+*Note: The File System Access API typically requires a **Secure Context** (HTTPS or `localhost`). If opening the file directly via `file://` results in a "not supported" error, please refer to the Local Server instructions below.*
+
 ## Browser Version (Local Server)
 There is no standalone "package install" for the browser version. Because browsers have security restrictions regarding local file access, the app is "served" via a local Node.js server.
 
@@ -36,6 +41,23 @@ There is no standalone "package install" for the browser version. Because browse
 4. Open your browser and navigate to: `http://localhost:3000`
 
 *Note: The browser version requires a modern browser that supports the File System Access API (e.g., Chrome, Edge, or Opera).*
+
+## Usage & Version Differences
+
+Depending on your needs, you can use the version that fits your workflow best:
+
+| Feature | Desktop App (Electron) | Browser (Local Server) | Portable HTML |
+| :--- | :--- | :--- | :--- |
+| **Setup** | None (Download & Run) | Node.js required | None (Single file) |
+| **Best For** | Regular use | Developers / Tweaking | Quick use / No-install |
+| **Reliability** | Highest | High | Variable (Browser dependent) |
+| **UX** | App-like (No URL bar) | Browser tab | Browser tab |
+
+### Which one should I use?
+- **Desktop Version**: Recommended for most users. It provides a clean, standalone experience without the distractions of a browser.
+- **Local Server Version**: Best if you want to modify the source code or if you prefer running applications within your existing browser environment.
+- **Portable HTML**: Great for a quick test or when you are on a guest machine. Be aware that modern browsers often restrict folder access for files opened directly from the disk (`file://`). If you see a "not supported" error, use one of the other two methods.
+
 
 ## Keyboard Shortcuts
 While the slideshow is active, you can use the following keys:
