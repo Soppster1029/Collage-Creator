@@ -35,6 +35,10 @@
     },
     "mac": {
       "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": ["AppImage", "deb", "rpm"],
+      "icon": "assets/icon.png"
     }
   }
 }

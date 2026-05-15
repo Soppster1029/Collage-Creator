@@ -1,4 +1,4 @@
-name: Build Windows and macOS App
+name: Build Windows, macOS, and Linux App
 
 on:
   push:
@@ -11,9 +11,12 @@ jobs:
     permissions:
       contents: write # Allows electron-builder to create releases
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -33,10 +36,18 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Windows" ]; then
             npm run build:win -- --publish never
-          else
+          elif [ "$RUNNER_OS" == "macOS" ]; then
             npx electron-builder --mac --publish never
+          else
+            npx electron-builder --linux --publish never
           fi
         shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-build-${{ matrix.os }}
+          path: dist/
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -47,5 +58,8 @@ jobs:
             dist/*.dmg
             dist/*.zip
             dist/*.blockmap
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
