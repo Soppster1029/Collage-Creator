@@ -28,7 +28,7 @@
     "win": {
       "target": ["nsis", "portable"],
       "icon": "assets/icon.ico",
-      "publisherName": "Your Company Name"
+      "publisherName": "Collage Creator Team"
     },
     "nsis": {
       "oneClick": true,
@@ -40,7 +40,7 @@
       "icon": "assets/icon.icns"
     },
     "linux": {
-      "maintainer": "Collage Creator Team ***REMOVED***",
+      "maintainer": "Collage Creator Team",
       "target": ["AppImage", "deb", "rpm"],
       "icon": "assets/icon.png"
     }
