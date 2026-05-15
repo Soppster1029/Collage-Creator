@@ -18,8 +18,7 @@
   },
   "build": {
     "publish": {
-      "provider": "github",
-      "releaseNotesFile": "release-notes.md"
+      "provider": "github"
     },
     "appId": "com.collage.creator",
     "copyright": "Copyright © 2024",

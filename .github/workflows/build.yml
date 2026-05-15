@@ -22,8 +22,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Required to fetch all tags and history for release notes
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -47,19 +45,6 @@ jobs:
           VERSION=${VERSION#v}
           echo "Syncing package.json version to $VERSION"
           npm version $VERSION --no-git-tag-version
-        shell: bash
-
-      - name: Generate Release Notes
-        run: |
-          # Get the second most recent tag (the previous release)
-          PREVIOUS_TAG=$(git tag --sort=-v:refname | sed -n '2p')
-          if [ -z "$PREVIOUS_TAG" ]; then
-            echo "No previous tag found. Listing all commits."
-            git log --pretty=format:"* %s (%h)" > release-notes.md
-          else
-            echo "Listing commits between $PREVIOUS_TAG and HEAD"
-            git log --pretty=format:"* %s (%h)" ${PREVIOUS_TAG}..HEAD > release-notes.md
-          fi
         shell: bash
 
       - name: Install Linux build dependencies
@@ -86,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (macOS)
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && github.event_name == 'workflow_dispatch'
         run: npx electron-builder --mac --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,6 +83,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
+        if: matrix.os != 'macos-latest' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: electron-build-${{ matrix.os }}
