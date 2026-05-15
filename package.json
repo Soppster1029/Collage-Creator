@@ -37,6 +37,7 @@
       "icon": "assets/icon.icns"
     },
     "linux": {
+      "maintainer": "Collage Creator Team ***REMOVED***",
       "target": ["AppImage", "deb", "rpm"],
       "icon": "assets/icon.png"
     }
