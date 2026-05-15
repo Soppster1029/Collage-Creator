@@ -87,20 +87,19 @@ npm start
 - **CI/CD**: GitHub Actions
 
 ## Roadmap
+- [x] **Settings Menu**: Integrated into the main slideshow interface with persistence.
 - [x] **Enhanced Customization**: Added options for adjustable collage size, image count per slide, and transition speeds with persistent user preferences.
 - [ ] **Image Effects and Filters**: Introduce basic image processing like brightness, contrast, and filters for a more personalized experience.
+- [ ] **Themes and UI Improvements**: Implement dark mode, custom themes, Image Borders, and improved user interface elements.
 - [ ] **Export Functionality**: Allow exporting slideshows as videos or image sequences for sharing.
-- [ ] **Mobile Support**: Develop a mobile version or responsive web app for on-the-go viewing.
-- [ ] **Themes and UI Improvements**: Implement dark mode, custom themes, and improved user interface elements.
 - [ ] **Audio Integration**: Add background music playback with playlist support.
-- [ ] **Performance Optimizations**: Further enhance loading times and support for larger image collections.
-- [ ] **Community Features**: Enable sharing presets, user-generated themes, and feedback integration.
 - [ ] **Auto-Update Feature**: Implement automatic updates for new versions across platforms.
-- [x] **Settings Menu**: Integrated into the main slideshow interface with persistence.
 - [ ] **Auto-Use Folder on Startup**: Allow users to set a default folder that loads automatically when the app starts.
 - [ ] **Auto-Play Mode**: Enable automatic slideshow playback without manual intervention.
-- [ ] **API Integration**: Develop APIs to connect with other photo management apps for seamless import and sync.
 - [ ] **Image Upload to Local Folder**: Add functionality to upload images directly to a local folder and trigger slideshow startup.
+- [ ] **API Integration**: Develop APIs to connect with other photo management apps for seamless import and sync.
+- [ ] **Performance Optimizations**: Further enhance loading times and support for larger image collections.
+- [ ] **Mobile Support**: Develop a mobile version or responsive web app for on-the-go viewing.
 - [ ] **TV App Support**: Create a TV-compatible version, either via browser connection or USB drive for direct playback on smart TVs.
 
 ## License
