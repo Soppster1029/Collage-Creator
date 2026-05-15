@@ -1,9 +1,11 @@
 # Collage-Creator
-A sleek, cross-platform desktop and browser application that transforms your local image folders into dynamic, randomized collage slideshows.
+A sleek, cross-platform desktop and browser application that transforms your local image folders into dynamic, randomized collage slideshows with extensive customization and persistent user settings.
 
 ## Features
 - **Smart Folder Scanning**: Add one or multiple folders. The app automatically organizes images into "chapters" based on subfolders.
-- **Dynamic Collage Layouts**: Displays images in randomized groups (default 6) with unique positions, rotations, and layering for a "scattered" aesthetic.
+- **Extensive Customization**: Fine-tune the experience via a dedicated settings menu. Adjust collage scaling, image density (1-12 images per slide), and transition speeds.
+- **Flexible Layout Styles**: Choose between a randomized "Scattered" aesthetic or a clean, organized "Grid" arrangement.
+- **Persistent Preferences**: Your configuration is automatically saved and restored across sessions, ensuring a consistent experience every time you open the app.
 - **Smooth Transitions**: Features background preloading and progress bars for a seamless viewing experience.
 - **Multi-Platform Support**: Built for Windows, macOS, and Linux.
 - **Hardware Optimized**: Includes logic to prevent UI white flashes and hides the cursor during active fullscreen playback.
@@ -14,7 +16,7 @@ The native desktop version provides the most robust experience and doesn't requi
 ### Installation
 Download the latest version from the **Releases** section:
 - **Windows**: `.exe` (Installer or Portable)
-- **macOS**: `.dmg` (Universal)
+- **macOS**: `.dmg` (Universal) --(Not Implemented Yet)
 - **Linux**: `.AppImage`, `.deb`, or `.rpm`
 
 ## Portable Web Version
@@ -85,7 +87,7 @@ npm start
 - **CI/CD**: GitHub Actions
 
 ## Roadmap
-- [ ] **Enhanced Customization**: Add options to adjust collage size, image count per slide, transition speeds, and layout styles.
+- [x] **Enhanced Customization**: Added options for adjustable collage size, image count per slide, and transition speeds with persistent user preferences.
 - [ ] **Image Effects and Filters**: Introduce basic image processing like brightness, contrast, and filters for a more personalized experience.
 - [ ] **Export Functionality**: Allow exporting slideshows as videos or image sequences for sharing.
 - [ ] **Mobile Support**: Develop a mobile version or responsive web app for on-the-go viewing.
@@ -94,7 +96,7 @@ npm start
 - [ ] **Performance Optimizations**: Further enhance loading times and support for larger image collections.
 - [ ] **Community Features**: Enable sharing presets, user-generated themes, and feedback integration.
 - [ ] **Auto-Update Feature**: Implement automatic updates for new versions across platforms.
-- [ ] **Settings Menu**: Create a comprehensive settings panel for user preferences, including layout, speed, and folder management.
+- [x] **Settings Menu**: Integrated into the main slideshow interface with persistence.
 - [ ] **Auto-Use Folder on Startup**: Allow users to set a default folder that loads automatically when the app starts.
 - [ ] **Auto-Play Mode**: Enable automatic slideshow playback without manual intervention.
 - [ ] **API Integration**: Develop APIs to connect with other photo management apps for seamless import and sync.

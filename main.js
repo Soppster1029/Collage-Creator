@@ -1,5 +1,7 @@
-const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const pkg = require('./package.json');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -25,6 +27,36 @@ function createWindow() {
   });
 }
 
+// Settings persistence logic
+const getSettingsPath = () => path.join(app.getPath('userData'), 'settings.json');
+
+const DEFAULT_SETTINGS = {
+  collageSize: 1.0,
+  imageCount: 6,
+  transitionSpeed: 4000,
+  layoutStyle: 'scattered'
+};
+
+function loadSettings() {
+  try {
+    const settingsPath = getSettingsPath();
+    if (fs.existsSync(settingsPath)) {
+      return { ...DEFAULT_SETTINGS, ...JSON.parse(fs.readFileSync(settingsPath, 'utf8')) };
+    }
+  } catch (e) {
+    console.error('Failed to load settings:', e);
+  }
+  return DEFAULT_SETTINGS;
+}
+
+function saveSettings(settings) {
+  try {
+    fs.writeFileSync(getSettingsPath(), JSON.stringify(settings, null, 2));
+  } catch (e) {
+    console.error('Failed to save settings:', e);
+  }
+}
+
 // This method will be called when Electron has finished initialization
 app.whenReady().then(() => {
   createWindow();
@@ -46,6 +78,25 @@ app.whenReady().then(() => {
     console.log('Main process received:', data);
     // Optionally reply back
     event.reply('from-main', 'Message received loud and clear!');
+  });
+
+  // Settings IPC Handlers
+  ipcMain.handle('get-settings', () => {
+    return loadSettings();
+  });
+
+  ipcMain.on('save-settings', (event, data) => {
+    saveSettings(data);
+  });
+
+  // Handler to show About Dialog
+  ipcMain.on('show-about', () => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: `About ${pkg.productName}`,
+      message: `${pkg.productName} v${pkg.version}`,
+      detail: `${pkg.build.copyright}\n\nLicense: Non-Commercial\n\n${pkg.description}`
+    });
   });
 });
 

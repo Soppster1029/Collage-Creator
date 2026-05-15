@@ -223,6 +223,94 @@
     white-space: nowrap;
     letter-spacing: 0.03em;
   }
+
+  /* Settings Overlay */
+  #settingsModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(15px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .settings-card {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 30px;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .settings-card h2 { font-weight: 300; margin-bottom: 10px; }
+  .setting-group { display: flex; flex-direction: column; gap: 8px; }
+  .setting-group label { font-size: 0.85rem; color: #888; font-weight: 500; }
+  .setting-info { font-size: 0.72rem; color: #555; line-height: 1.4; margin-top: -4px; }
+  .setting-group input, .setting-group select {
+    background: #2a2a2a;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    outline: none;
+  }
+
+  #resetSettingsBtn {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+    border: 1px solid rgba(255, 68, 68, 0.2);
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  #resetSettingsBtn:hover {
+    background: rgba(255, 68, 68, 0.2);
+  }
+
+  #saveSettingsBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  /* Specific styles for range input to fix padding issue */
+  .setting-group input[type="range"] {
+    padding: 0; /* Remove padding that might be causing the gap */
+  }
+
+  /* Toast Notification */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #fff;
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 3000;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  #toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -234,6 +322,7 @@
   <button id="pickBtn">+ Add Folder</button>
   <div id="folderList"></div>
   <button id="startBtn" style="display:none">Start Slideshow &#9654;</button>
+  <button id="openSettingsLanding" style="background:none; border:none; color:#666; cursor:pointer; font-size:0.85rem; margin-top:10px;">Settings &#9881;</button>
   <div id="status"></div>
 </div>
 
@@ -244,13 +333,62 @@
   <span id="counter"></span>
   <button id="nextBtn" title="Next">&#8594;</button>
   <button id="speedBtn" title="Speed">4s</button>
+  <button id="openSettingsSlideshow" title="Settings">&#9881;</button>
 </div>
 <div id="progressBar"></div>
 <div id="chapterLabel"></div>
 <button id="exitBtn">&#x2715; Exit</button>
 
+<div id="settingsModal">
+  <div class="settings-card">
+    <h2>Settings</h2>
+    <div class="setting-group">
+      <label>Images per slide</label>
+      <div class="setting-info">Determines how many photos are grouped together into a single collage cluster.</div>
+      <input type="number" id="settingImageCount" min="1" max="12">
+    </div>
+    <div class="setting-group">
+      <label>Default Transition Speed (Secs)</label>
+      <div class="setting-info">Sets the interval for how long each collage stays on screen during playback.</div>
+      <select id="settingSpeed">
+        <option value="2000">2 Secs</option>
+        <option value="4000">4 Secs</option>
+        <option value="6000">6 Secs</option>
+        <option value="10000">10 Secs</option>
+      </select>
+    </div>
+    <div class="setting-group">
+      <label>Collage Scaling</label>
+      <div class="setting-info">Adjusts the overall size of the image clusters relative to the screen dimensions.</div>
+      <input type="range" id="settingScale" min="0.5" max="1.5" step="0.1">
+    </div>
+    <div class="setting-group">
+      <label>Layout Style</label>
+      <div class="setting-info">Choose how images are arranged on each slide.</div>
+      <select id="settingLayout">
+        <option value="scattered">Scattered (Classic)</option>
+        <option value="grid">Grid (Clean)</option>
+      </select>
+    </div>
+    <button id="saveSettingsBtn">Apply & Save</button>
+    <button id="resetSettingsBtn">Reset to Defaults</button>
+    <button id="closeSettingsBtn" style="background:none; border:none; color:#666; cursor:pointer; font-size:0.85rem;">Cancel</button>
+  </div>
+</div>
+
+<div id="toast">Settings Saved!</div>
+
 <script>
-  const IMAGES_PER_GROUP = 6;
+  let imagesPerGroup = 6;
+  let collageScale = 1.0;
+  let layoutStyle = 'scattered';
+  const DEFAULTS = {
+    imageCount: 6,
+    transitionSpeed: 4000,
+    collageSize: 1.0,
+    layoutStyle: 'scattered'
+  };
+
   const SPEEDS = [2000, 4000, 6000, 10000];
   const SPEED_LABELS = ['2s','4s','6s','10s'];
 
@@ -271,12 +409,109 @@
   const chapterLabel = document.getElementById('chapterLabel');
   const exitBtn = document.getElementById('exitBtn');
 
+  // Settings Logic
+  const settingsModal = document.getElementById('settingsModal');
+  const settingImageCount = document.getElementById('settingImageCount');
+  const settingSpeed = document.getElementById('settingSpeed');
+  const settingScale = document.getElementById('settingScale');
+  const settingLayout = document.getElementById('settingLayout');
+  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+  const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+  const toast = document.getElementById('toast');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  async function initSettings() {
+    let settings;
+    if (window.electronAPI) {
+      settings = await window.electronAPI.getSettings();
+    } else {
+      try {
+        const saved = localStorage.getItem('collage-settings');
+        settings = saved ? JSON.parse(saved) : DEFAULTS;
+      } catch (e) {
+        settings = DEFAULTS;
+      }
+    }
+
+    // Ensure we always have a valid object and merge missing keys from DEFAULTS
+    const finalSettings = Object.assign({}, DEFAULTS, settings || {});
+    updateVariables(finalSettings);
+  }
+
+  function updateVariables(s) {
+    // Force numeric conversion and fallback to defaults if NaN or empty
+    const count = s ? parseInt(s.imageCount) : NaN;
+    imagesPerGroup = (!isNaN(count) && count > 0) ? count : DEFAULTS.imageCount;
+
+    const scale = s ? parseFloat(s.collageSize) : NaN;
+    collageScale = (!isNaN(scale) && scale > 0) ? scale : DEFAULTS.collageSize;
+
+    const speed = s ? parseInt(s.transitionSpeed) : NaN;
+    const currentSpeed = !isNaN(speed) ? speed : DEFAULTS.transitionSpeed;
+
+    layoutStyle = s.layoutStyle || DEFAULTS.layoutStyle;
+
+    speedIdx = SPEEDS.indexOf(currentSpeed);
+    if (speedIdx === -1) speedIdx = 1; // Default to index 1 (4s)
+
+    // Update UI inputs explicitly as strings to prevent blank boxes
+    settingImageCount.value = imagesPerGroup.toString();
+    settingLayout.value = layoutStyle;
+    settingSpeed.value = SPEEDS[speedIdx].toString();
+    settingScale.value = collageScale;
+    
+    if (speedBtn) speedBtn.textContent = SPEED_LABELS[speedIdx];
+  }
+
+  function toggleSettings(show) {
+    settingsModal.style.display = show ? 'flex' : 'none';
+  }
+
+  document.getElementById('openSettingsLanding').onclick = () => toggleSettings(true);
+  document.getElementById('openSettingsSlideshow').onclick = () => toggleSettings(true);
+  document.getElementById('closeSettingsBtn').onclick = () => toggleSettings(false);
+
+  saveSettingsBtn.onclick = async () => {
+    const newSettings = {
+      imageCount: parseInt(settingImageCount.value) || DEFAULTS.imageCount,
+      transitionSpeed: parseInt(settingSpeed.value) || DEFAULTS.transitionSpeed,
+      collageSize: parseFloat(settingScale.value) || DEFAULTS.collageSize,
+      layoutStyle: settingLayout.value
+    };
+    
+    if (window.electronAPI) window.electronAPI.saveSettings(newSettings);
+    else localStorage.setItem('collage-settings', JSON.stringify(newSettings));
+
+    showToast('Settings Saved!');
+
+    updateVariables(newSettings);
+    toggleSettings(false);
+    if (slideshow.style.display === 'block') {
+      await buildGroups();
+      showFrame(current);
+    }
+  };
+
+  resetSettingsBtn.onclick = () => {
+    settingImageCount.value = DEFAULTS.imageCount;
+    settingSpeed.value = DEFAULTS.transitionSpeed.toString();
+    settingScale.value = DEFAULTS.collageSize;
+    settingLayout.value = DEFAULTS.layoutStyle;
+  };
+
   let current = 0;
   let playing = true;
   let speedIdx = 1;
   let timer = null; // For scheduling next slide
   let progressTimer = null;
   let progressStart = null;
+
+  initSettings();
 
   let folders = []; // [{ name, files[] }]
   let groups = []; 
@@ -375,9 +610,9 @@
       }
       let idx = 0;
       while (idx < files.length) {
-        const chunk = files.slice(idx, idx + IMAGES_PER_GROUP);
+        const chunk = files.slice(idx, idx + imagesPerGroup);
         groups.push({ files: chunk, chapterName: chapter.name });
-        idx += IMAGES_PER_GROUP;
+        idx += imagesPerGroup;
       }
     }
   }
@@ -454,8 +689,8 @@
       const w = parseFloat(card.dataset.w);
       const h = parseFloat(card.dataset.h);
       const ar = w / h;
-      const availW = slotW * 0.99 - PAD * 2;
-      const availH = slotH * 0.99 - PAD - BOTTOM_PAD;
+      const availW = (slotW * 0.99 - PAD * 2) * collageScale;
+      const availH = (slotH * 0.99 - PAD - BOTTOM_PAD) * collageScale;
 
       let imgW, imgH;
       if (ar < 0.95) { // Portrait
@@ -472,14 +707,22 @@
       const cardH = imgH + PAD + BOTTOM_PAD;
       const slotX = MARGIN + parseInt(card.dataset.slotC) * slotW;
       const slotY = MARGIN + parseInt(card.dataset.slotR) * slotH;
-      
-      const cx = slotX + slotW / 2 + (parseFloat(card.dataset.jx) * slotW * OVERLAP);
-      const cy = slotY + slotH / 2 + (parseFloat(card.dataset.jy) * slotH * OVERLAP);
-      
-      const left = Math.max(MARGIN / 2, Math.min(VW - cardW - MARGIN / 2, cx - cardW / 2));
-      const top  = Math.max(MARGIN / 2, Math.min(VH - cardH - MARGIN / 2, cy - cardH / 2));
 
-      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${card.dataset.rot}deg);z-index:${card.dataset.zIndex};`;
+      let left, top, rotation;
+
+      if (layoutStyle === 'grid') {
+        left = slotX + (slotW - cardW) / 2;
+        top = slotY + (slotH - cardH) / 2;
+        rotation = 0;
+      } else {
+        const cx = slotX + slotW / 2 + (parseFloat(card.dataset.jx) * slotW * OVERLAP);
+        const cy = slotY + slotH / 2 + (parseFloat(card.dataset.jy) * slotH * OVERLAP);
+        left = Math.max(MARGIN / 2, Math.min(VW - cardW - MARGIN / 2, cx - cardW / 2));
+        top  = Math.max(MARGIN / 2, Math.min(VH - cardH - MARGIN / 2, cy - cardH / 2));
+        rotation = card.dataset.rot;
+      }
+
+      card.style.cssText = `left:${left}px;top:${top}px;width:${cardW}px;height:${cardH}px;transform:rotate(${rotation}deg);z-index:${card.dataset.zIndex};`;
       card.querySelector('img').style.cssText = `width:${imgW}px;height:${imgH}px;`;
     });
   }
