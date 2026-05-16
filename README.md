@@ -17,7 +17,7 @@ The native desktop version provides the most robust experience and doesn't requi
 Download the latest version from the **Releases** section:
 - **Windows**: `.exe` (Installer or Portable)
 - **macOS**: `.dmg` (Universal) --(Not Implemented Yet)
-- **Linux**: `.AppImage`, `.deb`, or `.rpm`
+- **Linux**: `.AppImage` or `.deb`
 
 ## Portable Web Version
 For the simplest use case on any device with a compatible browser, you can download the standalone `collage-slideshow.html` file from the **Releases** section and open it directly. This allows you to run the application without any installation or server configuration.
