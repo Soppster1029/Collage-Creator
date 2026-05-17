@@ -101,5 +101,8 @@ npm start
 - [ ] **Mobile Support**: Develop a mobile version or responsive web app for on-the-go viewing.
 - [ ] **TV App Support**: Create a TV-compatible version, either via browser connection or USB drive for direct playback on smart TVs.
 
+## Buy me a Coffee
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W41ZPYTJ)
+
 ## License
 This project is licensed under a Non-Commercial License. See the [LICENSE](LICENSE) file for details.
