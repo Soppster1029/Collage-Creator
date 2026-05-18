@@ -16,7 +16,7 @@ The native desktop version provides the most robust experience and doesn't requi
 ### Installation
 Download the latest version from the **Releases** section:
 - **Windows**: `.exe` (Installer or Portable)
-- **macOS**: `.dmg` (Universal) --(Not Implemented Yet)
+- **macOS**: `.dmg` (Universal) --(Not Implemented Yet use portable app)
 - **Linux**: `.AppImage` or `.deb`
 
 ## Portable Web Version
