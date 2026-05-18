@@ -7,11 +7,12 @@
   "scripts": {
     "start": "electron .",
     "serve": "node serve.js",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win"
+    "licenses": "license-checker --production --out THIRD-PARTY-LICENSES.txt",
+    "build": "npm run licenses && electron-builder",
+    "build:win": "npm run licenses && electron-builder --win"
   },
-  "author": "",
-  "license": "SEE LICENSE IN LICENSE",
+  "author": "Collage Creator Team",
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1"
@@ -34,7 +35,8 @@
       "oneClick": true,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
-      "artifactName": "${productName} Setup ${version}.${ext}"
+      "artifactName": "${productName} Setup ${version}.${ext}",
+      "license": "LICENSE"
     },
     "mac": {
       "icon": "assets/icon.icns"

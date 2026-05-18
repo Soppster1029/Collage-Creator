@@ -9,6 +9,7 @@ const MIME_TYPES = {
   '.js': 'text/javascript',
   '.css': 'text/css',
   '.png': 'image/png',
+  '.txt': 'text/plain',
   '.ico': 'image/x-icon',
 };
 

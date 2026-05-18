@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const pkg = require('./package.json');
@@ -88,6 +88,26 @@ app.whenReady().then(() => {
     event.reply('from-main', 'Message received loud and clear!');
   });
 
+  const openLicenseWindow = () => {
+    const licenseWin = new BrowserWindow({
+      width: 800,
+      height: 600,
+      title: 'Third-Party Licenses',
+      autoHideMenuBar: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
+    const licensePath = path.join(__dirname, 'THIRD-PARTY-LICENSES.txt');
+    if (fs.existsSync(licensePath)) {
+      licenseWin.loadFile(licensePath);
+    } else {
+      licenseWin.loadURL(`data:text/plain;charset=utf-8,${encodeURIComponent('License file not found. Please run "npm run licenses" to generate it.')}`);
+    }
+  };
+
   // Settings IPC Handlers
   ipcMain.handle('get-settings', () => {
     return loadSettings();
@@ -97,13 +117,23 @@ app.whenReady().then(() => {
     saveSettings(data);
   });
 
+  ipcMain.on('show-licenses', openLicenseWindow);
+
   // Handler to show About Dialog
   ipcMain.on('show-about', () => {
     dialog.showMessageBox({
       type: 'info',
       title: `About ${pkg.productName}`,
       message: `${pkg.productName} v${pkg.version}`,
-      detail: `${pkg.build.copyright}\n\nLicense: Non-Commercial\n\n${pkg.description}`
+      detail: `${pkg.build.copyright}\n\nLicense: ${pkg.license} (Commercial use allowed)\n\n${pkg.description}\n\nThis software uses third-party components.`,
+      buttons: ['Close', 'View Licenses', 'Donate'],
+      defaultId: 0
+    }).then(result => {
+      if (result.response === 1) {
+        openLicenseWindow();
+      } else if (result.response === 2) {
+        shell.openExternal('https://ko-fi.com/soppster1029');
+      }
     });
   });
 

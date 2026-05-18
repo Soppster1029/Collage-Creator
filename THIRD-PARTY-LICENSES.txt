@@ -1,0 +1,5 @@
+└─ collage-creator@1.0.0
+   ├─ licenses: GPL-3.0-only
+   ├─ publisher: Collage Creator Team
+   ├─ path: /root/github/Collage-Creator
+   └─ licenseFile: /root/github/Collage-Creator/LICENSE
