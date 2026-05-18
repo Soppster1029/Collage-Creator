@@ -97,7 +97,7 @@ npm start
 - [ ] **Audio Integration**: Add background music playback with playlist support.
 - [ ] **Image Upload to Local Folder**: Add functionality to upload images directly to a local folder and trigger slideshow startup.
 - [ ] **API Integration**: Develop APIs to connect with other photo management apps for seamless import and sync.
-- [ ] **Performance Optimizations**: Further enhance loading times and support for larger image collections.
+- [ ] **Performance Optimizations**: Further enhance loading times, add slide caching to preload the next slide, and support for larger image collections.
 - [ ] **Mobile Support**: Develop a mobile version or responsive web app for on-the-go viewing.
 - [ ] **TV App Support**: Create a TV-compatible version, either via browser connection or USB drive for direct playback on smart TVs.
 
