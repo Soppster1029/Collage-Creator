@@ -7,8 +7,8 @@ Thank you for your interest in contributing! All contributions are welcome — f
 1. **Fork** this repository to your own GitHub account.
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/your-username/repo-name.git
-   cd repo-name
+   git clone https://github.com/Soppster1029/Collage-Creator.git
+   cd Collage-Creator
    ```
 3. **Create a branch** for your changes:
    ```bash
