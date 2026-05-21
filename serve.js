@@ -15,7 +15,7 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-  const requestPath = req.url === '/' ? '/collage-slideshow.html' : req.url;
+  const requestPath = req.url === '/' ? '/index.html' : req.url;
   const urlPath = requestPath.split('?')[0].split('#')[0];
 
   let decodedPath;

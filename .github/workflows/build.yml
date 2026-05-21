@@ -87,14 +87,14 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v')
         run: |
           # Remove the favicon and landing page image tags to make it standalone
-          sed -i '/rel="icon"/d' collage-slideshow.html
-          sed -i '/src="assets\/icon.png"/d' collage-slideshow.html
+          sed -i '/rel="icon"/d' index.html
+          sed -i '/src="assets\/icon.png"/d' index.html
 
       - name: Upload Portable HTML to Release
         if: matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: collage-slideshow.html
+          files: index.html
           draft: true
           generate_release_notes: true
         env:

@@ -20,7 +20,7 @@ Download the latest version from the **Releases** section:
 - **Linux**: `.AppImage` or `.deb`
 
 ## Portable Web Version
-For the simplest use case on any device with a compatible browser, you can download the standalone `collage-slideshow.html` file from the **Releases** section and open it directly. This allows you to run the application without any installation or server configuration.
+For the simplest use case on any device with a compatible browser, you can download the standalone `index.html` file from the **Releases** section and open it directly. This allows you to run the application without any installation or server configuration.
 
 *Note: The File System Access API typically requires a **Secure Context** (HTTPS or `localhost`). If opening the file directly via `file://` results in a "not supported" error, please refer to the Local Server instructions below.*
 
@@ -51,7 +51,7 @@ Depending on your needs, you can use the version that fits your workflow best:
 | Feature | Desktop App (Electron) | Browser (Local Server) | Portable HTML |
 | :--- | :--- | :--- | :--- |
 | **Setup** | None (Download & Run) | Node.js required | None (Single file) |
-| **Best For** | Regular use | Developers / Tweaking | Quick use / No-install |
+| **Best For** | Regular use | Developers / Tweaking | GitHub Pages / Quick use |
 | **Reliability** | Highest | High | Variable (Browser dependent) |
 | **UX** | App-like (No URL bar) | Browser tab | Browser tab |
 

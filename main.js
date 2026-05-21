@@ -18,8 +18,9 @@ function createWindow() {
     }
   });
 
-  win.loadFile('collage-slideshow.html');
   win.setMenuBarVisibility(false);
+
+  win.loadFile('index.html');
 
   // Prevents the initial white flash during load
   win.once('ready-to-show', () => {
