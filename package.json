@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "serve": "node serve.js",
-    "licenses": "license-checker --production --out THIRD-PARTY-LICENSES.txt",
+    "licenses": "npx license-checker --production --out THIRD-PARTY-LICENSES.txt",
     "build": "npm run licenses && electron-builder",
     "build:win": "npm run licenses && electron-builder --win"
   },
