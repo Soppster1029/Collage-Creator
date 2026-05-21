@@ -1,7 +1,7 @@
 # Collage-Creator
 A sleek, cross-platform desktop and browser application that transforms your local image folders into dynamic, randomized collage slideshows with extensive customization and persistent user settings.
 
-**Live Demo**: [soppster1029.github.io/Collage-Creator/](https://soppster1029.github.io/Collage-Creator/)
+**Live Demo**: <a href="https://soppster1029.github.io/Collage-Creator/" target="_blank">soppster1029.github.io/Collage-Creator/</a>
 
 ## Features
 - **Smart Folder Scanning**: Add one or multiple folders. The app automatically organizes images into "chapters" based on subfolders.
