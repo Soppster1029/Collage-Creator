@@ -63,6 +63,25 @@
   .dropdown-option:hover { background: #353535; color: #fff; }
   .dropdown-divider { height: 1px; background: #333; margin: 4px 0; }
 
+  /* Demo Restrictions */
+  #demoOverlay {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 10000;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: none;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+  }
+
   /* Custom Scrollbar Styling for a cohesive dark theme */
   * {
     scrollbar-width: thin;
@@ -1234,6 +1253,7 @@ copy of the Program in return for a fee.
 </header>
 
 <div id="toast">Settings Saved!</div>
+<div id="demoOverlay">DEMO VERSION — DOWNLOAD DESKTOP APP FOR UNLIMITED USE</div>
 
 <script>
   let imagesPerGroup = 6;
@@ -1289,6 +1309,12 @@ copy of the Program in return for a fee.
   const progressBar = document.getElementById('progressBar');
   const chapterLabel = document.getElementById('chapterLabel');
   let wasPlayingBeforeSettings = false;
+  
+  // Demo detection
+  const isDemoMode = window.location.hostname.includes('github.io');
+  const DEMO_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+  let demoTimer = null;
+  let demoInterval = null;
   const exitBtn = document.getElementById('exitBtn');
 
   // Settings Logic
@@ -1766,6 +1792,33 @@ copy of the Program in return for a fee.
     controls.style.display = 'flex';
     exitBtn.style.display = 'block';
     chapterLabel.style.display = 'block';
+    
+    if (isDemoMode) {
+      const overlay = document.getElementById('demoOverlay');
+      overlay.style.display = 'block';
+      
+      const startTime = Date.now();
+      const endTime = startTime + DEMO_TIMEOUT_MS;
+
+      const updateCountdown = () => {
+        const remaining = Math.max(0, endTime - Date.now());
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        overlay.textContent = `DEMO VERSION — ${timeStr} REMAINING — DOWNLOAD DESKTOP APP FOR UNLIMITED USE`;
+      };
+
+      updateCountdown();
+      clearInterval(demoInterval);
+      demoInterval = setInterval(updateCountdown, 1000);
+
+      clearTimeout(demoTimer);
+      demoTimer = setTimeout(() => {
+        clearInterval(demoInterval);
+        exitBtn.click();
+        alert("Demo session expired. Please download the desktop version or run locally for unlimited slideshow duration!");
+      }, DEMO_TIMEOUT_MS);
+    }
 
     // Pre-build all frames (lazy: build on demand to avoid memory issues)
     current = 0;
@@ -1995,6 +2048,9 @@ copy of the Program in return for a fee.
     document.getElementById('landing').style.display = 'flex';
     status.textContent = '';
     folders = [];
+    document.getElementById('demoOverlay').style.display = 'none';
+    clearTimeout(demoTimer);
+    clearInterval(demoInterval);
     renderFolderList();
     updateStartBtn();
     // Clean up blob urls
