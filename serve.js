@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const ROOT_DIR = path.resolve(__dirname);
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -14,7 +15,26 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = req.url === '/' ? './collage-slideshow.html' : '.' + req.url;
+  const requestPath = req.url === '/' ? '/collage-slideshow.html' : req.url;
+  const urlPath = requestPath.split('?')[0].split('#')[0];
+
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(urlPath);
+  } catch (e) {
+    res.writeHead(400);
+    res.end('Bad request');
+    return;
+  }
+
+  const filePath = path.resolve(ROOT_DIR, '.' + decodedPath);
+  const relativePath = path.relative(ROOT_DIR, filePath);
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
+
   const extname = path.extname(filePath);
   const contentType = MIME_TYPES[extname] || 'application/octet-stream';
 
